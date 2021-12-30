@@ -55,7 +55,7 @@ class Coin(Money):
     def __init__(self, value, currency="PLN"):
         if round(Decimal(value), 2) in self.__available_coins:
             if currency.upper() != "PLN":
-                raise WrongCurrencyError
+                raise CurrencyMismatchError
             else:
                 super().__init__(value, currency)
         else:
@@ -75,7 +75,7 @@ class Bill(Money):
     def __init__(self, value, currency="PLN"):
         if round(Decimal(value), 2) in self.__available_bills:
             if currency.upper() != "PLN":
-                raise WrongCurrencyError
+                raise CurrencyMismatchError
             else:
                 super().__init__(value, currency)
         else:
@@ -83,3 +83,35 @@ class Bill(Money):
 
     def __repr__(self):
         return 'Bill({}, "{}")'.format(self.value, self.currency)
+
+
+class MoneyHolder:
+    """Klasa reprezentująca przechowywacz pieniędzy"""
+
+    __list_of_money = []
+    __currency = "PLN"
+
+    def add_money(self, money):
+        """Metoda dodająca pieniądz do przechowywacza"""
+
+        if isinstance(money, Money):
+            if money.currency == self.__currency:
+                if isinstance(money, Bill):
+                    self.__list_of_money.append(money)
+                if isinstance(money, Coin):
+                    if self.number_of_coins(money) < 200:
+                        self.__list_of_money.append(money)
+                    else:
+                        print("Parkomat przepełniony monetami o nominale {} {}, wrzuć pieniądz o innym nominale.".format(money.value, money.currency))
+            else:
+                raise CurrencyMismatchError
+        else:
+            raise UnknownObjectError
+
+    def total_amount(self):
+        """Metoda zwracająca sumę wartości pieniędzy znajdujących się w przechowywaczu"""
+        return sum([money.value for money in self.__list_of_money])
+
+    def number_of_coins(self, money):
+        """Metoda zwracająca liczbę monet danego rodzaju"""
+        return len([coin.value for coin in self.__list_of_money if coin.value == money.value])
