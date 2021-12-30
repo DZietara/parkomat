@@ -6,12 +6,7 @@ class InvalidValueError(Exception):
         super().__init__("Invalid value money")
 
 
-class WrongCurrencyError(Exception):
-    def __init__(self):
-        super().__init__("Currency must be PLN")
-
-
-class CurrencyMismatchError(ValueError):
+class CurrencyMismatchError(Exception):
     def __init__(self):
         super().__init__("Currencies must match")
 
