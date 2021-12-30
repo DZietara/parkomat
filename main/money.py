@@ -7,7 +7,7 @@ class Money:
 
     def __init__(self, value, currency="PLN"):
         self.__value = round(Decimal(value), 2)
-        self.__currency = currency
+        self.__currency = currency.upper()
 
     @property
     def value(self):
@@ -54,10 +54,7 @@ class Coin(Money):
 
     def __init__(self, value, currency="PLN"):
         if round(Decimal(value), 2) in self.__available_coins:
-            if currency.upper() != "PLN":
-                raise CurrencyMismatchError
-            else:
-                super().__init__(value, currency)
+            super().__init__(value, currency)
         else:
             raise InvalidValueError
 
@@ -74,10 +71,7 @@ class Bill(Money):
 
     def __init__(self, value, currency="PLN"):
         if round(Decimal(value), 2) in self.__available_bills:
-            if currency.upper() != "PLN":
-                raise CurrencyMismatchError
-            else:
-                super().__init__(value, currency)
+            super().__init__(value, currency)
         else:
             raise InvalidValueError
 
