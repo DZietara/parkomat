@@ -56,7 +56,7 @@ class Coin(Money):
         if round(Decimal(value), 2) in self.__available_coins:
             super().__init__(value, currency)
         else:
-            raise InvalidValueError
+            raise IncorrectValueError
 
     def __repr__(self):
         return 'Coin({}, "{}")'.format(self.value, self.currency)
@@ -73,7 +73,7 @@ class Bill(Money):
         if round(Decimal(value), 2) in self.__available_bills:
             super().__init__(value, currency)
         else:
-            raise InvalidValueError
+            raise IncorrectValueError
 
     def __repr__(self):
         return 'Bill({}, "{}")'.format(self.value, self.currency)
@@ -84,6 +84,19 @@ class MoneyHolder:
 
     __list_of_money = []
     __currency = "PLN"
+    __available_money = [Decimal("0.01"),
+                         Decimal("0.02"),
+                         Decimal("0.05"),
+                         Decimal("0.10"),
+                         Decimal("0.20"),
+                         Decimal("0.50"),
+                         Decimal("1"),
+                         Decimal("2"),
+                         Decimal("5"),
+                         Decimal("10"),
+                         Decimal("20"),
+                         Decimal("50")
+                         ]
 
     def add_money(self, money):
         """Metoda dodająca pieniądz do przechowywacza"""
@@ -96,11 +109,14 @@ class MoneyHolder:
                     if self.number_of_coins(money) < 200:
                         self.__list_of_money.append(money)
                     else:
-                        print("Parkomat przepełniony monetami o nominale {} {}, wrzuć pieniądz o innym nominale.".format(money.value, money.currency))
+                        raise TooMuchCoinsError("Parkomat przepełniony monetami o nominale {} {}, wrzuć pieniądz o innym nominale.".format(money.value, money.currency))
             else:
                 raise CurrencyMismatchError
         else:
             raise UnknownObjectError
+
+    def available_money(self):
+        return self.__available_money
 
     def total_amount(self):
         """Metoda zwracająca sumę wartości pieniędzy znajdujących się w przechowywaczu"""
@@ -109,3 +125,7 @@ class MoneyHolder:
     def number_of_coins(self, money):
         """Metoda zwracająca liczbę monet danego rodzaju"""
         return len([coin.value for coin in self.__list_of_money if coin.value == money.value])
+
+    def reset(self):
+        """Metoda resetująca listę monet"""
+        self.__list_of_money.clear()
