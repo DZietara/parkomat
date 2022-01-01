@@ -1,9 +1,17 @@
 """Wyjątki dla operacji związanych z pieniędzmi"""
 
 
-class InvalidValueError(Exception):
+class IncorrectValueError(Exception):
     def __init__(self):
-        super().__init__("Invalid value money")
+        super().__init__("Invalid value for money")
+
+
+class TooMuchCoinsError(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
 
 
 class CurrencyMismatchError(Exception):
