@@ -3,6 +3,7 @@ from exceptions import *
 from tkinter import *
 from datetime import *
 from time import *
+import math
 import re
 from tkinter import messagebox
 
@@ -13,8 +14,8 @@ icon = PhotoImage(file="icon.png")
 window.iconphoto(True, icon)
 
 global_date = datetime.now()  # zmienna globalna przechowująca aktualną datę w parkomacie
-h1 = "m"  # zmienna globalna przechowująca wpisaną godzinę
-m1 = "h"  # zmienna globalna przechowująca wpisaną minutę
+h1 = "h"  # zmienna globalna przechowująca wpisaną godzinę
+m1 = "m"  # zmienna globalna przechowująca wpisaną minutę
 
 
 def actual_date():
@@ -71,7 +72,6 @@ def change_actual_time():
 def add_number_of_money(value):
     """ Funkcja dodająca wybraną liczbę monet """
 
-    input_validator()
     number_of_money = number_of_money_entry.get()
 
     if number_of_money_entry == "" or number_of_money.isdigit() is False:
@@ -88,14 +88,45 @@ def add_number_of_money(value):
         else:
             for x in range(number_of_money):
                 moneyHolder.add_money(money.Bill(value))
+        departure_date()
+
+
+def input_validator():
+    """ Funkcja walidująca numer rejestracyjny """
+
+    pattern = re.match("^[A-Z0-9]+$", registration_number_entry.get())
+    if registration_number_entry.get() == "":
+        messagebox.showerror("Error", "Wpisz numer rejestracyjny.")
+        return False
+    elif bool(pattern) is False:
+        messagebox.showerror("Error", "Numer rejestracyjny może składać się tylko z wielkich liter od A do Z i cyfr")
+        return False
+
+
+def confirmation_of_payment():
+    """ Funkcja wyświetlająca okno z potwierdzeniem zakupu """
+
+    if change_actual_date_button.winfo_exists() == 1:
+        messagebox.showinfo("Potwierdzenie opłacenia parkingu",
+                            "Numer rejestracyjny: {} \n\nCzas zakupu: {} \n\nTermin wyjazdu: {}"
+                            .format(registration_number_entry.get(), actual_date_label.cget("text"),
+                                    date_of_departure_label.cget("text")))
+    else:
+        messagebox.showinfo("Potwierdzenie opłacenia parkingu",
+                            "Numer rejestracyjny: {} \n\nCzas zakupu: {} \n\nTermin wyjazdu: {}"
+                            .format(registration_number_entry.get(), actual_date_label2.cget("text"),
+                                    date_of_departure_label.cget("text")))
 
 
 def confirm():
     """ Funkcja włączająca się przy zatwiedzeniu przycisku 'Zatwierdź' """
 
     if input_validator() is not False:
-        sum_of_money_label.config(text=moneyHolder.total_amount())
-        confirmation_of_payment()
+        if moneyHolder.total_amount() > 0:
+            sum_of_money_label.config(text=moneyHolder.total_amount())
+            confirmation_of_payment()
+        else:
+            messagebox.showerror("Error", "Nie wrzucono monet.")
 
 
 def reset():
@@ -105,6 +136,7 @@ def reset():
 
     registration_number_entry.delete(0, "end")  # reset pola z numerem rejestracyjnym
 
+    date_of_departure_label.config(text="")
     global global_date
     global_date = datetime.now()
 
