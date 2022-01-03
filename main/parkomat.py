@@ -13,60 +13,45 @@ window.title("Parkomat")
 icon = PhotoImage(file="icon.png")
 window.iconphoto(True, icon)
 
-global_date = datetime.now()  # zmienna globalna przechowująca aktualną datę w parkomacie
-h1 = "h"  # zmienna globalna przechowująca wpisaną godzinę
-m1 = "m"  # zmienna globalna przechowująca wpisaną minutę
+global_date = None  # zmienna globalna przechowująca aktualną datę w parkomacie
+check = 0  # sprawdzenie czy przycisk ze zmianą czasu został wciśnięty
 
 
 def actual_date():
     """ Funkcja generująca aktualną datę """
 
     global global_date
-    global_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    actual_date_label.config(text=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    global_date = datetime.strptime(global_date, "%Y-%m-%d %H:%M:%S")
+    global check
+    if check == 0:
+        global_date = datetime.now()
+        global_date = global_date.strftime("%Y-%m-%d %H:%M:%S")
+        actual_date_label.config(text=global_date)
+        global_date = datetime.strptime(global_date, "%Y-%m-%d %H:%M:%S")
+    else:
+        global_date = global_date + timedelta(seconds=1)
+        global_date = global_date.strftime("%Y-%m-%d %H:%M:%S")
+        actual_date_label.config(text=global_date)
+        global_date = datetime.strptime(global_date, "%Y-%m-%d %H:%M:%S")
+
     actual_date_label.after(1000, actual_date)
 
 
 def change_actual_time():
-    """ Funkcja zmieniająca aktualną datę """
+    """ Funkcja ustawiająca godzinę wprowadzoną przez użytkownika """
 
     global global_date
-    global h1
-    global m1
-
-    temp = global_date.strftime("%Y-%m-%d %H:%M:%S")
-    temp = datetime.strptime(temp, "%Y-%m-%d %H:%M:%S") + timedelta(seconds=1)
-    global_date = temp
-    if hour_entry.get().isdigit() is False or minute_entry.get().isdigit() is False or int(hour_entry.get()) < 0 or int(hour_entry.get()) > 23 or int(minute_entry.get()) < 0 or int(minute_entry.get()) > 59:
+    if hour_entry.get().isdigit() is False or minute_entry.get().isdigit() is False or int(
+            hour_entry.get()) < 0 or int(hour_entry.get()) > 23 or int(minute_entry.get()) < 0 or int(
+        minute_entry.get()) > 59:
         messagebox.showerror("Error", "Wpisz poprawną godzinę.")
     else:
-        if hour_entry.get().isdigit():
-            if h1 != hour_entry.get():
-                h2 = int(hour_entry.get())
-                temp = temp.replace(hour=h2)
-                h1 = str(h2)
-                global_date = temp
-        else:
-            hour_entry.insert(0, h1)
-            messagebox.showerror("Error", "Wpisz poprawną godzinę.")
-
-        if minute_entry.get().isdigit():
-            if m1 != minute_entry.get():
-                m2 = int(minute_entry.get())
-                temp = temp.replace(minute=m2)
-                m1 = str(m2)
-                global_date = temp
-        else:
-            minute_entry.insert(0, m1)
-            messagebox.showerror("Error", "Wpisz poprawną godzinę.")
-
-        actual_date_label.destroy()
-        change_actual_date_button.destroy()
-
-        actual_date_label2.grid(column=1, row=1)
-        actual_date_label2.config(text=global_date.strftime("%Y-%m-%d %H:%M:%S"))
-        actual_date_label2.after(1000, change_actual_time)
+        h1 = int(hour_entry.get())
+        m1 = int(minute_entry.get())
+        temp = global_date.replace(hour=h1)
+        temp = temp.replace(minute=m1)
+        global_date = temp
+        global check
+        check = 1
 
 
 def add_number_of_money(value):
@@ -106,16 +91,53 @@ def input_validator():
 def confirmation_of_payment():
     """ Funkcja wyświetlająca okno z potwierdzeniem zakupu """
 
-    if change_actual_date_button.winfo_exists() == 1:
-        messagebox.showinfo("Potwierdzenie opłacenia parkingu",
-                            "Numer rejestracyjny: {} \n\nCzas zakupu: {} \n\nTermin wyjazdu: {}"
-                            .format(registration_number_entry.get(), actual_date_label.cget("text"),
-                                    date_of_departure_label.cget("text")))
-    else:
-        messagebox.showinfo("Potwierdzenie opłacenia parkingu",
-                            "Numer rejestracyjny: {} \n\nCzas zakupu: {} \n\nTermin wyjazdu: {}"
-                            .format(registration_number_entry.get(), actual_date_label2.cget("text"),
-                                    date_of_departure_label.cget("text")))
+    messagebox.showinfo("Potwierdzenie opłacenia parkingu",
+                        "Numer rejestracyjny: {} \n\nCzas zakupu: {} \n\nTermin wyjazdu: {}"
+                        .format(registration_number_entry.get(), actual_date_label.cget("text"),
+                                date_of_departure_label.cget("text")))
+
+
+def number_of_hours(amount):
+    hours_paid = 0
+    if amount == 1:
+        hours_paid += 0.5
+        amount -= 1
+    if amount == 5:
+        hours_paid = 1.75
+        amount -= 5
+    if amount >= 2:
+        hours_paid += 1
+        amount -= 2
+    if amount >= 6:
+        hours_paid += 1
+        amount -= 4
+    if amount >= 11:
+        hours_paid += 1
+        amount -= 5
+    if amount >= 12:
+        hp = math.floor((amount / 5))
+        hours_paid = hours_paid + hp
+
+    return hours_paid
+
+
+def departure_date():
+    """ Funkcja obliczająca datę wyjazdu """
+
+    global global_date
+    actual_time = global_date
+    amount = moneyHolder.total_amount()
+    hours_paid = number_of_hours(amount)
+
+    """strefa od poniedziałku do piątku: 8-20"""
+    for x in range(hours_paid):
+        temp = actual_time + timedelta(hours=hours_paid)
+        if temp.weekday() not in [5, 6]:
+            departure_time = actual_time + timedelta(hours=hours_paid)
+        # elif temp.weekday() == 5: #DOKOŃCZYĆ
+
+    departure_time = actual_time + timedelta(hours=hours_paid)
+    date_of_departure_label.config(text=departure_time.strftime("%Y-%m-%d %H:%M:%S"))
 
 
 def confirm():
@@ -135,7 +157,7 @@ def reset():
     moneyHolder.reset()  # reset przechowywacza monet do stanu początkowego tzn. braku monet
 
     registration_number_entry.delete(0, "end")  # reset pola z numerem rejestracyjnym
-
+    sum_of_money_label.config(text="0")
     date_of_departure_label.config(text="")
     global global_date
     global_date = datetime.now()
@@ -153,8 +175,8 @@ registration_number_entry.grid(column=1, row=0)
 Label(window, text="Aktualna data: ", width=20).grid(column=0, row=1)
 actual_date_label = Label(window, text="", width=20)
 actual_date_label.grid(column=1, row=1)
+""" Uruchomienie funkcji z aktualnym czasem """
 actual_date()
-actual_date_label2 = Label(window, text="", width=20)
 """ Pole pozwalające na przestawienie aktualnego czasu """
 Label(window, text="Przestaw aktualny czas: ", width=20).grid(column=0, row=2)
 """ Godzina """
@@ -173,9 +195,6 @@ change_actual_date_button.grid(column=4, row=2)
 Label(window, text="Data wyjazdu z parkingu: ", width=20).grid(column=0, row=3)
 date_of_departure_label = Label(window, text="", width=20)
 date_of_departure_label.grid(column=1, row=3)
-
-""" Uruchomienie funkcji z aktualnym czasem """
-actual_date()
 
 """ Liczba wrzucanych monet """
 Label(window, text="Liczba wrzuconych monet: ", width=20).grid(column=0, row=4)
