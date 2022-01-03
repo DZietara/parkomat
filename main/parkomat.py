@@ -8,12 +8,12 @@ import re
 from tkinter import messagebox
 
 window = Tk()
-window.geometry("450x340")
+window.geometry("410x520")
 window.title("Parkomat")
 icon = PhotoImage(file="icon.png")
 window.iconphoto(True, icon)
 
-global_date = None  # zmienna globalna przechowująca aktualną datę w parkomacie
+global_date = datetime.now()  # zmienna globalna przechowująca aktualną datę w parkomacie
 check = 0  # sprawdzenie czy przycisk ze zmianą czasu został wciśnięty
 
 
@@ -98,6 +98,7 @@ def confirmation_of_payment():
 
 
 def number_of_hours(amount):
+    """ Obliczanie ile zostało zapłaconych godzin """
     hours_paid = 0
     if amount == 1:
         hours_paid += 0.5
@@ -157,7 +158,7 @@ def reset():
     moneyHolder.reset()  # reset przechowywacza monet do stanu początkowego tzn. braku monet
 
     registration_number_entry.delete(0, "end")  # reset pola z numerem rejestracyjnym
-    sum_of_money_label.config(text="0")
+    sum_of_money_label.config(text="0")  #
     date_of_departure_label.config(text="")
     global global_date
     global_date = datetime.now()
@@ -167,7 +168,7 @@ def reset():
 
 
 """ Numer rejestracyjny pojazdu """
-Label(window, text="Numer rejestracyjny: ", width=20).grid(column=0, row=0)
+Label(window, text="Numer rejestracyjny: ", width=20, pady=15).grid(column=0, row=0)
 registration_number_entry = Entry(window, width=20)
 registration_number_entry.grid(column=1, row=0)
 
@@ -180,38 +181,41 @@ actual_date()
 """ Pole pozwalające na przestawienie aktualnego czasu """
 Label(window, text="Przestaw aktualny czas: ", width=20).grid(column=0, row=2)
 """ Godzina """
+Label(window, text="wprowadź godzinę ", width=20).grid(column=1, row=2)
 hour_entry = Entry(window, width=2)
-hour_entry.grid(column=1, row=2)
-hour_entry.insert(0, "h")
+hour_entry.grid(column=2, row=2)
+hour_entry.insert(0, "0")
 """ Minuta """
+Label(window, text="wprowadź minutę", width=20).grid(column=1, row=3)
 minute_entry = Entry(window, width=2)
-minute_entry.grid(column=2, row=2)
-minute_entry.insert(0, "m")
+minute_entry.grid(column=2, row=3)
+minute_entry.insert(0, "0")
 """ Przycisk przestawiający aktualny czas"""
 change_actual_date_button = Button(window, text="Przestaw", width=8, command=lambda: change_actual_time())
-change_actual_date_button.grid(column=4, row=2)
+change_actual_date_button.grid(column=1, row=4)
 
 """ Data wyjazdu z parkingu """
-Label(window, text="Data wyjazdu z parkingu: ", width=20).grid(column=0, row=3)
+Label(window, text="Data wyjazdu z parkingu: ", width=20, pady=15).grid(column=0, row=6)
 date_of_departure_label = Label(window, text="", width=20)
-date_of_departure_label.grid(column=1, row=3)
+date_of_departure_label.grid(column=1, row=6)
 
 """ Liczba wrzucanych monet """
-Label(window, text="Liczba wrzuconych monet: ", width=20).grid(column=0, row=4)
+Label(window, text="Liczba wrzuconych monet: ", width=20).grid(column=0, row=7)
 number_of_money_entry = Entry(window, width=20)
-number_of_money_entry.grid(column=1, row=4)
+number_of_money_entry.grid(column=1, row=7)
 number_of_money_entry.insert(0, "1")
+Label(window, width=20).grid(row=8)
 
 """ Tworzenie przechowywacza pieniędzy """
 moneyHolder = money.MoneyHolder()
 
 """ Pętla tworząca przyciski z pieniędzmi """
-i = 6
+i = 9
 col = 0
 for m in moneyHolder.available_money:
-    if i == 12:
+    if i == 15:
         col += 1
-        i = 6
+        i = 9
     if m < 10:
         button1 = Button(window, text=str(m) + " " + moneyHolder.currency, width=15,
                          command=lambda m=m: add_number_of_money(m))
@@ -224,13 +228,17 @@ for m in moneyHolder.available_money:
         i += 1
 
 """ Przycisk Zatwierdź """
-confirm_button = Button(window, text="Zatwierdź", width=15, pady=12, command=lambda: confirm())
-confirm_button.grid(column=0, row=13)
-Label(window, text="Suma monet: ", width=20, font="BOLD").grid(column=0, row=14)
-sum_of_money_label = Label(window, text="0", width=20)
-sum_of_money_label.grid(column=1, row=14)
+Label(window, width=20).grid(row=16)
+confirm_button = Button(window, text="Zatwierdź", width=42, pady=3, command=lambda: confirm())
+confirm_button.grid(column=0, row=17, columnspan=2)
 
 """ Przycisk resetujący parkomat """
-Button(window, text="Reset parkomatu", width=15, pady=12, command=lambda: reset()).grid(column=1, row=13)
+reset_button = Button(window, text="Reset parkomatu", width=42, pady=3, command=lambda: reset())
+reset_button.grid(column=0, row=18, columnspan=2, pady=3)
+
+""" Pole pokazujące sumę wrzuconych monet """
+Label(window, text="Suma monet: ", width=20, font="BOLD", pady=15).grid(column=0, row=20)
+sum_of_money_label = Label(window, text="0", width=20, font="BOLD")
+sum_of_money_label.grid(column=1, row=20)
 
 window.mainloop()
