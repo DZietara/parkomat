@@ -5,6 +5,7 @@ from datetime import *
 import math
 import re
 from tkinter import messagebox
+from dateutil.rrule import *
 
 window = Tk()
 window.title("Parkomat")  # tytuł okna programu
@@ -25,6 +26,7 @@ window.geometry("{}x{}+{}+{}".format(window_width, window_height, x_cordinate, y
 
 global_date = datetime.now()  # zmienna globalna przechowująca aktualnie ustawioną datę w parkomacie
 check = 0  # zmianna globalna przechowująca stan czy przycisk ze zmianą czasu został wciśnięty
+departure_time = global_date  # zmienna globalna przechowująca czas wyjazdu
 
 
 def actual_date():
@@ -62,6 +64,9 @@ def change_actual_time():
         global_date = global_date.replace(hour=h1, minute=m1)  # przypisanie do globalnego czasu zmienionego
         global check
         check = 1  # ustawienie zniennej globalnej na wciśnięty przycisk
+        global departure_time  # jeśli przestawimy czas to resetujemy czas wyjazdu
+        departure_time = global_date
+        date_of_departure_label.config(text=departure_time)
 
 
 def add_number_of_money(value):
@@ -132,23 +137,24 @@ def number_of_hours(amount):
     return hours_paid
 
 
+def rules(start, x):
+    """ Zasady strefy płatnego parkowania obowiązuje w godzinach od 8 do 20 od poniedziałku do piątku """
+
+    rr = rrule(SECONDLY, byweekday=(MO,TU,WE,TH,FR), byhour=(8,9,10,11,12,13,14,15,16,17,18,19), dtstart=start, interval=x)
+    return rr.after(start)
+
+
 def departure_date():
     """ Funkcja obliczająca datę wyjazdu """
 
+    # nie działa, dokończyć
     global global_date
-    actual_time = global_date  # aktualny czas parkomatu
+    global departure_time
     amount = moneyHolder.total_amount()  # suma przechowywanych pieniędzy
+    before_amount = moneyHolder.total_amount()
     hours_paid = number_of_hours(amount)  # liczba zapłaconych godzin
-
-    """strefa od poniedziałku do piątku: 8-20"""
-
-    for x in range(hours_paid):
-        temp = actual_time + timedelta(hours=hours_paid)
-        if temp.weekday() not in [5, 6]:
-            departure_time = actual_time + timedelta(hours=hours_paid)
-        # elif temp.weekday() == 5: #DOKOŃCZYĆ
-
-    departure_time = actual_time + timedelta(hours=hours_paid)
+    # hours_paid = hours_paid*60*60 # każda moneta dodaje godzinę
+    departure_time = rules(departure_time, hours_paid)
     date_of_departure_label.config(text=departure_time.strftime("%Y-%m-%d %H:%M:%S"))
 
 
