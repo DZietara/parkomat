@@ -6,8 +6,8 @@ class Money:
     """ Klasa reprezentująca pieniądz """
 
     def __init__(self, value, currency="PLN"):
-        self.__value = round(Decimal(value), 2)
-        self.__currency = currency.upper()
+        self.__value = round(Decimal(value), 2)  # konwertowanie wpisanej wartości na Decimal i zaookrąglenie do 2 miejsc
+        self.__currency = currency.upper()  # zmienienie wpisanej waluty na wielkie litery
 
     @property
     def value(self):
