@@ -15,6 +15,8 @@ class ParkomatFunctions:
     __global_date = datetime.now()  # zmienna przechowująca aktualnie ustawioną datę w parkomacie
     __check = 0  # zmienna przechowująca stan czy przycisk ze zmianą czasu został wciśnięty
     __departure_time = __global_date  # zmienna przechowująca czas wyjazdu
+    __hours_bought = 0  # zmienna przechowująca aktualnie wykupioną liczbę godzin
+    __sum_of_money_used = 0  # zmienna przechowująca sumę użytych pieniędzy to wykupienia godzin
 
     def __init__(self):
         self.window = Tk()
@@ -25,7 +27,7 @@ class ParkomatFunctions:
         self.window.mainloop()
 
     def buttons_onclick(self):
-        """ Metoda obsługująca wydarzenia, gdy przycisk zostanie wciśnięty """
+        """ Metoda obsługująca wydarzenie, gdy przycisk zostanie wciśnięty """
 
         self.interface.window.button1.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[0]))
         self.interface.window.button2.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[1]))
@@ -58,6 +60,15 @@ class ParkomatFunctions:
         """ Getter zwracający datę wyjazdu """
         return self.__departure_time
 
+    @property
+    def hours_bought(self):
+        """ Getter zwracający liczbę kupionych godzin """
+        return self.__hours_bought
+
+    @property
+    def sum_of_money_used(self):
+        """ Getter zwracający sumę użytych pieniędzy na kupno godzin """
+        return self.__sum_of_money_used
 
     @global_date.setter
     def global_date(self, global_date):
@@ -74,6 +85,15 @@ class ParkomatFunctions:
         """ Setter ustawiający datę wyjazdu  """
         self.__departure_time = departure_time
 
+    @hours_bought.setter
+    def hours_bought(self, hours_bought):
+        """ Setter ustawiający liczbę kupionych godzin """
+        self.__hours_bought = hours_bought
+
+    @sum_of_money_used.setter
+    def sum_of_money_used(self, sum_of_money_used):
+        """ Setter ustawiający sumę użytych pieniędzy na kupno godzin """
+        self.__sum_of_money_used = sum_of_money_used
 
     def actual_date(self):
         """ Metoda generująca aktualną datę """
@@ -122,7 +142,7 @@ class ParkomatFunctions:
                     try:
                         self.moneyHolder.add_money(money.Coin(value))
                     except TooMuchCoinsError as err:  # przechywcenie wyjątku jeśli spróbowano utworzyć więcej niż 200 razy monetę o jednym nominale
-                        messagebox.showerror("Error", err)
+                        messagebox.showerror("Error", str(err))
                         break
             else:  # w przeciwnym wypadku tworzymy banknoty
                 for x in range(number_of_money):  # tworzymy liczbę banknotów
@@ -161,22 +181,32 @@ class ParkomatFunctions:
         """ Metoda obliczająca ile zostało zapłaconych godzin """
 
         hours_paid = 0  # zmienna przechowująca
+        amount = amount - self.sum_of_money_used
 
-        if amount == 1:
+        if amount == 1 and self.hours_bought < 1:
             hours_paid += 0.5
             amount -= 1
-        if amount == 5:
+            self.sum_of_money_used += 1
+            self.hours_bought += 0.5
+        if amount == 5 and self.hours_bought == 0:
             hours_paid += 1.75
             amount -= 5
-        if amount >= 2:
+            self.sum_of_money_used += 5
+            self.hours_bought = 2
+        if amount >= 2 and self.hours_bought == 0:
             hours_paid += 1
             amount -= 2
-        if amount >= 4:
+            self.sum_of_money_used += 2
+            self.hours_bought = 1
+        if amount >= 4 and self.hours_bought == 1:
             hours_paid += 1
             amount -= 4
-        if amount >= 5:
+            self.sum_of_money_used += 4
+            self.hours_bought = 2
+        if amount >= 5 and self.hours_bought == 2:
             hours_paid = hours_paid + math.floor((amount / 5))
             amount -= 5
+            self.sum_of_money_used += (5 * hours_paid)
 
         return hours_paid
 
@@ -185,8 +215,25 @@ class ParkomatFunctions:
 
         hour_free = [0, 1, 2, 3, 4, 5, 6, 7, 20, 21, 22, 23]
         amount = self.moneyHolder.total_amount()  # suma przechowywanych pieniędzy
-        hours_paid = self.number_of_hours(amount) * 60 * 60  # liczba zaplaconych godzin zmieniona na sekundy
-
+        hours_paid = self.number_of_hours(amount) * 60 * 60  # liczba zapłaconych godzin zmieniona na sekundy
+        if hours_paid > 0:
+            if self.departure_time.hour in hour_free:
+                if hours_paid == 3600*1.75:
+                    self.departure_time = self.departure_time.replace(hour=9, minute=45) + timedelta(days=1)
+                    self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M:%S"))
+                if hours_paid == 3600:
+                    self.departure_time = self.departure_time.replace(hour=9, minute=0) + timedelta(days=1)
+                    self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M:%S"))
+                if hours_paid == 1800:
+                    self.departure_time = self.departure_time.replace(hour=8, minute=30) + timedelta(days=1)
+                    self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M:%S"))
+                if hours_paid >= 3600*1.75:
+                    self.departure_time = self.departure_time.replace(hour=9, minute=0) + timedelta(days=1)
+                    self.departure_time = self.rules(self.departure_time, int(hours_paid)-1)
+                    self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M:%S"))
+            else:
+                self.departure_time = self.rules(self.departure_time, int(hours_paid))
+                self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M:%S"))
 
     def confirm(self, event):
         """ Funkcja włączająca się przy zatwiedzeniu przycisku 'Zatwierdź' """
@@ -208,6 +255,8 @@ class ParkomatFunctions:
         self.interface.window.date_of_departure_label.config(text="")  # reset pola z datą wyjazdu
         self.global_date = datetime.now()  # reset czasu parkomatu do stanu początkowego
         self.departure_time = self.global_date  # ustawienie z powrotem czasu wyjazdy do stanu początkowego
+        self.hours_bought = 0  # reset liczby godzin zamówiona w parkomacie do stanu początkowego
+        self.sum_of_money_used = 0  # reset sumy użytych pieniędzy do opłacenia do stanu początkowego
         self.interface.window.number_of_money_entry.delete(0, "end")  # reset pola z liczbą monet
         self.interface.window.number_of_money_entry.insert(0, "1")  # wpisanie domyślnej wartości
         self.interface.window.hour_entry.delete(0, "end")  # reset entry z godziną
