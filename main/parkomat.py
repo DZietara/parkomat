@@ -144,16 +144,17 @@ def rules(start, x):
     return rr.after(start)
 
 
+before_amount = 0
 def departure_date():
     """ Funkcja obliczająca datę wyjazdu """
 
-    # nie działa, dokończyć
     global global_date
     global departure_time
-    amount = moneyHolder.total_amount()  # suma przechowywanych pieniędzy
-    before_amount = moneyHolder.total_amount()
+    global before_amount
+    amount = moneyHolder.total_amount() #- before_amount  # suma przechowywanych pieniędzy
+    #before_amount = moneyHolder.total_amount()
     hours_paid = number_of_hours(amount)  # liczba zapłaconych godzin
-    # hours_paid = hours_paid*60*60 # każda moneta dodaje godzinę
+    hours_paid = hours_paid*60*60 # każda moneta dodaje godzinę DOKOŃCZYĆ
     departure_time = rules(departure_time, hours_paid)
     date_of_departure_label.config(text=departure_time.strftime("%Y-%m-%d %H:%M:%S"))
 

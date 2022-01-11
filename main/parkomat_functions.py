@@ -24,6 +24,8 @@ class ParkomatFunctions:
         self.moneyHolder = self.interface.moneyHolder
         self.buttons_onclick()
         self.actual_date()
+
+    def main_loop(self):
         self.window.mainloop()
 
     def buttons_onclick(self):
@@ -126,6 +128,7 @@ class ParkomatFunctions:
             self.global_date = self.global_date.replace(hour=h1, minute=m1)  # przypisanie do globalnego czasu zmienionego
             self.check = 1  # ustawienie zniennej globalnej na wciśnięty przycisk
             self.departure_time = self.global_date
+            self.departure_time = self.departure_time + timedelta(seconds=1)
             self.interface.window.date_of_departure_label.config(text=self.departure_time)
 
     def add_number_of_money(self, value):
@@ -188,25 +191,31 @@ class ParkomatFunctions:
             amount -= 1
             self.sum_of_money_used += 1
             self.hours_bought += 0.5
+            print(hours_paid)
         if amount == 5 and self.hours_bought == 0:
             hours_paid += 1.75
             amount -= 5
             self.sum_of_money_used += 5
             self.hours_bought = 2
+            print(hours_paid)
         if amount >= 2 and self.hours_bought == 0:
             hours_paid += 1
             amount -= 2
             self.sum_of_money_used += 2
             self.hours_bought = 1
-        if amount >= 4 and self.hours_bought == 1:
+            print(hours_paid)
+        if amount >= 4 and 0.5 <= self.hours_bought <= 1:
             hours_paid += 1
             amount -= 4
             self.sum_of_money_used += 4
             self.hours_bought = 2
+            print(hours_paid)
         if amount >= 5 and self.hours_bought == 2:
             hours_paid = hours_paid + math.floor((amount / 5))
-            amount -= 5
-            self.sum_of_money_used += (5 * hours_paid)
+            self.hours_bought = 2
+            self.sum_of_money_used += (5 * math.floor((amount / 5)))
+            amount -= (5 * hours_paid)
+            print(hours_paid)
 
         return hours_paid
 
@@ -219,17 +228,29 @@ class ParkomatFunctions:
         if hours_paid > 0:
             if self.departure_time.hour in hour_free:
                 if hours_paid == 3600*1.75:
-                    self.departure_time = self.departure_time.replace(hour=9, minute=45) + timedelta(days=1)
+                    if self.departure_time.hour > 19:
+                        self.departure_time = self.departure_time.replace(hour=9, minute=45) + timedelta(days=1)
+                    else:
+                        self.departure_time = self.departure_time.replace(hour=9, minute=45)
                     self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M:%S"))
-                if hours_paid == 3600:
-                    self.departure_time = self.departure_time.replace(hour=9, minute=0) + timedelta(days=1)
+                elif hours_paid == 3600:
+                    if self.departure_time.hour > 19:
+                        self.departure_time = self.departure_time.replace(hour=9, minute=0) + timedelta(days=1)
+                    else:
+                        self.departure_time = self.departure_time.replace(hour=9, minute=0)
                     self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M:%S"))
-                if hours_paid == 1800:
-                    self.departure_time = self.departure_time.replace(hour=8, minute=30) + timedelta(days=1)
+                elif hours_paid == 1800:
+                    if self.departure_time.hour > 19:
+                        self.departure_time = self.departure_time.replace(hour=8, minute=30) + timedelta(days=1)
+                    else:
+                        self.departure_time = self.departure_time.replace(hour=8, minute=30)
                     self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M:%S"))
-                if hours_paid >= 3600*1.75:
-                    self.departure_time = self.departure_time.replace(hour=9, minute=0) + timedelta(days=1)
-                    self.departure_time = self.rules(self.departure_time, int(hours_paid)-1)
+                elif hours_paid >= 3600*1.75:
+                    if self.departure_time.hour > 19:
+                        self.departure_time = self.departure_time.replace(hour=8, minute=0) + timedelta(days=1)
+                    else:
+                        self.departure_time = self.departure_time.replace(hour=8, minute=0)
+                    self.departure_time = self.rules(self.departure_time, int(hours_paid))
                     self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M:%S"))
             else:
                 self.departure_time = self.rules(self.departure_time, int(hours_paid))
