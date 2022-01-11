@@ -6,10 +6,26 @@ class ParkomatInterface:
     """ Klasa tworząca interfejs użytkownika """
 
     def __init__(self, root):
-        self.window = root
+        self.__window = root
         self.window_settings()
-        self.moneyHolder = money.MoneyHolder()
+        self.__moneyHolder = money.MoneyHolder()
         self.init_ui()
+
+    @property
+    def window(self):
+        return self.__window
+
+    @window.setter
+    def window(self, window):
+        self.__window = window
+
+    @property
+    def moneyHolder(self):
+        return self.__moneyHolder
+
+    @moneyHolder.setter
+    def moneyHolder(self, moneyHolder):
+        self.__moneyHolder = moneyHolder
 
     def window_settings(self):
         """ Metoda zmieniająca ustawienia okna programu """

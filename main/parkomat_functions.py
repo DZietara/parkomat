@@ -19,33 +19,38 @@ class ParkomatFunctions:
     __sum_of_money_used = 0  # zmienna przechowująca sumę użytych pieniędzy to wykupienia godzin
 
     def __init__(self):
-        self.window = Tk()
-        self.interface = ParkomatInterface(self.window)
-        self.moneyHolder = self.interface.moneyHolder
+        self.__window = Tk()
+        self.__interface = ParkomatInterface(self.window)
+        self.__moneyHolder = self.interface.moneyHolder
         self.buttons_onclick()
         self.actual_date()
 
     def main_loop(self):
         self.window.mainloop()
 
-    def buttons_onclick(self):
-        """ Metoda obsługująca wydarzenie, gdy przycisk zostanie wciśnięty """
+    @property
+    def window(self):
+        return self.__window
 
-        self.interface.window.button1.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[0]))
-        self.interface.window.button2.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[1]))
-        self.interface.window.button3.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[2]))
-        self.interface.window.button4.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[3]))
-        self.interface.window.button5.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[4]))
-        self.interface.window.button6.bind("<Button-1>>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[5]))
-        self.interface.window.button7.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[6]))
-        self.interface.window.button8.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[7]))
-        self.interface.window.button9.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[8]))
-        self.interface.window.button10.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[9]))
-        self.interface.window.button11.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[10]))
-        self.interface.window.button12.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[11]))
-        self.interface.window.confirm_button.bind("<Button-1>", lambda event: self.confirm(event))
-        self.interface.window.reset_button.bind("<Button-1>", lambda event: self.reset(event))
-        self.interface.window.change_actual_date_button.bind("<Button-1>", lambda event: self.change_actual_time(event))
+    @window.setter
+    def window(self, window):
+        self.__window = window
+
+    @property
+    def interface(self):
+        return self.__interface
+
+    @interface.setter
+    def interface(self, interface):
+        self.__interface = interface
+
+    @property
+    def moneyHolder(self):
+        return self.__moneyHolder
+
+    @moneyHolder.setter
+    def moneyHolder(self, moneyHolder):
+        self.__moneyHolder = moneyHolder
 
     @property
     def global_date(self):
@@ -96,6 +101,25 @@ class ParkomatFunctions:
     def sum_of_money_used(self, sum_of_money_used):
         """ Setter ustawiający sumę użytych pieniędzy na kupno godzin """
         self.__sum_of_money_used = sum_of_money_used
+
+    def buttons_onclick(self):
+        """ Metoda obsługująca wydarzenie, gdy przycisk zostanie wciśnięty """
+
+        self.interface.window.button1.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[0]))
+        self.interface.window.button2.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[1]))
+        self.interface.window.button3.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[2]))
+        self.interface.window.button4.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[3]))
+        self.interface.window.button5.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[4]))
+        self.interface.window.button6.bind("<Button-1>>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[5]))
+        self.interface.window.button7.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[6]))
+        self.interface.window.button8.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[7]))
+        self.interface.window.button9.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[8]))
+        self.interface.window.button10.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[9]))
+        self.interface.window.button11.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[10]))
+        self.interface.window.button12.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[11]))
+        self.interface.window.confirm_button.bind("<Button-1>", lambda event: self.confirm(event))
+        self.interface.window.reset_button.bind("<Button-1>", lambda event: self.reset(event))
+        self.interface.window.change_actual_date_button.bind("<Button-1>", lambda event: self.change_actual_time(event))
 
     def actual_date(self):
         """ Metoda generująca aktualną datę """
@@ -191,31 +215,26 @@ class ParkomatFunctions:
             amount -= 1
             self.sum_of_money_used += 1
             self.hours_bought += 0.5
-            print(hours_paid)
         if amount == 5 and self.hours_bought == 0:
             hours_paid += 1.75
             amount -= 5
             self.sum_of_money_used += 5
             self.hours_bought = 2
-            print(hours_paid)
         if amount >= 2 and self.hours_bought == 0:
             hours_paid += 1
             amount -= 2
             self.sum_of_money_used += 2
             self.hours_bought = 1
-            print(hours_paid)
         if amount >= 4 and 0.5 <= self.hours_bought <= 1:
             hours_paid += 1
             amount -= 4
             self.sum_of_money_used += 4
             self.hours_bought = 2
-            print(hours_paid)
         if amount >= 5 and self.hours_bought == 2:
             hours_paid = hours_paid + math.floor((amount / 5))
             self.hours_bought = 2
             self.sum_of_money_used += (5 * math.floor((amount / 5)))
             amount -= (5 * hours_paid)
-            print(hours_paid)
 
         return hours_paid
 
