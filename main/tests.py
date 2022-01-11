@@ -22,10 +22,17 @@ class Tests(unittest.TestCase):
         self.parkomat.interface.window.minute_entry.delete(0, "end")  # reset entry z minutą
         self.parkomat.interface.window.minute_entry.insert(0, "34")  # wpisanie wartości
         self.parkomat.change_actual_time("<Button-1>")
+        self.parkomat.reset("<Button-1>")
 
     def test2(self):
         """ Wrzucić 2zł, oczekiwany termin wyjazdu godzinę po aktualnym czasie. Dorzuć 4zł, oczekiwany termin wyjazdu dwie godziny po aktualnym czasie.
         Dorzuć 5zł, oczekiwany termin wyjazdu trzy godziny po aktualnym czasie. Dorzuć kolejne 5zł, oczekiwany termin wyjazdu cztery godziny po aktualnym czasie."""
+        self.parkomat.interface.window.hour_entry.delete(0, "end")  # reset entry z godziną
+        self.parkomat.interface.window.hour_entry.insert(0, "12")  # wpisanie wartości
+        self.parkomat.interface.window.minute_entry.delete(0, "end")  # reset entry z minutą
+        self.parkomat.interface.window.minute_entry.insert(0, "34")  # wpisanie wartości
+        self.parkomat.change_actual_time("<Button-1>")
+
         self.parkomat.add_number_of_money(Decimal("2"))
         self.parkomat.global_date = self.parkomat.global_date + timedelta(hours=1)
         globaldate = self.parkomat.global_date.strftime("%Y-%m-%d %H:%M")
@@ -47,9 +54,9 @@ class Tests(unittest.TestCase):
 
         self.parkomat.add_number_of_money(Decimal("5"))
         self.parkomat.global_date = self.parkomat.global_date + timedelta(hours=1)
-        globaldate = self.parkomat.global_date.strftime("%Y-%m-%d %H:%M")
+        expected_date = self.parkomat.global_date.strftime("%Y-%m-%d %H:%M")
         departuredate = self.parkomat.departure_time.strftime("%Y-%m-%d %H:%M")
-        self.assertEqual(globaldate, departuredate)
+        self.assertEqual(expected_date, departuredate)
 
         self.parkomat.reset("<Button-1>")
 
@@ -90,9 +97,9 @@ class Tests(unittest.TestCase):
 
         self.parkomat.add_number_of_money(Decimal("1"))
         self.parkomat.global_date = self.parkomat.global_date + timedelta(minutes=30)
-        globaldate = self.parkomat.global_date.strftime("%Y-%m-%d %H:%M")
+        expected_date = self.parkomat.global_date.strftime("%Y-%m-%d %H:%M")
         departuredate = self.parkomat.departure_time.strftime("%Y-%m-%d %H:%M")
-        self.assertEqual(globaldate, departuredate)
+        self.assertEqual(expected_date, departuredate)
         self.parkomat.reset("<Button-1>")
 
     def test6(self):
@@ -114,9 +121,9 @@ class Tests(unittest.TestCase):
         self.parkomat.add_number_of_money(Decimal("0.01"))
 
         self.parkomat.global_date = self.parkomat.global_date + timedelta(hours=1)
-        globaldate = self.parkomat.global_date.strftime("%Y-%m-%d %H:%M")
+        expected_date = self.parkomat.global_date.strftime("%Y-%m-%d %H:%M")
         departuredate = self.parkomat.departure_time.strftime("%Y-%m-%d %H:%M")
-        self.assertEqual(globaldate, departuredate)
+        self.assertEqual(expected_date, departuredate)
         self.parkomat.reset("<Button-1>")
 
     def test7(self):

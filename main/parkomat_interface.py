@@ -13,18 +13,22 @@ class ParkomatInterface:
 
     @property
     def window(self):
+        """ Getter zwracający Toplevel widget reprezentujący główne okno programu """
         return self.__window
 
     @window.setter
     def window(self, window):
+        """ Setter ustawiający Toplevel widget reprezentujący główne okno programu """
         self.__window = window
 
     @property
     def moneyHolder(self):
+        """ Getter zwracający przechowywacz pieniędzy """
         return self.__moneyHolder
 
     @moneyHolder.setter
     def moneyHolder(self, moneyHolder):
+        """ Setter ustawiający przechowywacz pieniędzy """
         self.__moneyHolder = moneyHolder
 
     def window_settings(self):
