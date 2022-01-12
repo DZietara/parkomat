@@ -2,6 +2,7 @@ import money
 from exceptions import *
 from tkinter import *
 from datetime import *
+from decimal import Decimal
 import math
 import re
 from tkinter import messagebox
@@ -14,8 +15,7 @@ class ParkomatFunctions:
 
     __global_date = datetime.now()  # zmienna przechowująca aktualnie ustawioną datę w parkomacie
     __departure_time = __global_date  # zmienna przechowująca czas wyjazdu
-    __hours_bought = 0  # zmienna przechowująca aktualnie wykupioną liczbę godzin
-    __sum_of_money_used = 0  # zmienna przechowująca sumę użytych pieniędzy to wykupienia godzin
+    __previous_time = 0  # zmienna przechowująca poprzednio dodany czas w sekundach
 
     def __init__(self):
         self.__window = Tk()  # Toplevel widget reprezentujący główne okno programu
@@ -64,19 +64,9 @@ class ParkomatFunctions:
         return self.__global_date
 
     @property
-    def departure_time (self):
+    def departure_time(self):
         """ Getter zwracający datę wyjazdu """
         return self.__departure_time
-
-    @property
-    def hours_bought(self):
-        """ Getter zwracający liczbę kupionych godzin """
-        return self.__hours_bought
-
-    @property
-    def sum_of_money_used(self):
-        """ Getter zwracający sumę użytych pieniędzy na kupno godzin """
-        return self.__sum_of_money_used
 
     @global_date.setter
     def global_date(self, global_date):
@@ -88,15 +78,15 @@ class ParkomatFunctions:
         """ Setter ustawiający datę wyjazdu  """
         self.__departure_time = departure_time
 
-    @hours_bought.setter
-    def hours_bought(self, hours_bought):
-        """ Setter ustawiający liczbę kupionych godzin """
-        self.__hours_bought = hours_bought
+    @property
+    def previous_time(self):
+        """ Getter zwracający poprzednio dodany czas """
+        return self.__previous_time
 
-    @sum_of_money_used.setter
-    def sum_of_money_used(self, sum_of_money_used):
-        """ Setter ustawiający sumę użytych pieniędzy na kupno godzin """
-        self.__sum_of_money_used = sum_of_money_used
+    @previous_time.setter
+    def previous_time(self, previous_time):
+        """ SSetter ustawiający poprzednio dodany czas """
+        self.__previous_time = previous_time
 
     def buttons_onclick(self):
         """ Metoda obsługująca wydarzenie, gdy przycisk zostanie wciśnięty """
@@ -106,7 +96,7 @@ class ParkomatFunctions:
         self.interface.window.button3.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[2]))
         self.interface.window.button4.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[3]))
         self.interface.window.button5.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[4]))
-        self.interface.window.button6.bind("<Button-1>>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[5]))
+        self.interface.window.button6.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[5]))
         self.interface.window.button7.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[6]))
         self.interface.window.button8.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[7]))
         self.interface.window.button9.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[8]))
@@ -194,46 +184,51 @@ class ParkomatFunctions:
                    dtstart=start, interval=x)
         return rr.after(start)
 
-    def number_of_hours(self, amount):
-        """ Metoda obliczająca ile zostało zapłaconych godzin """
+    def seconds_for_money(self, amount):
+        """ Metoda zwracająca liczbę sekund dla wrzuconych pieniędzy """
 
-        hours_paid = 0  # zmienna przechowująca liczbę opłaconych godzin
-        amount = amount - self.sum_of_money_used  # zmienna przechowująca ilość dostępnych do wykorzystania pieniędzy
+        total_seconds = 0  # zmienna przechowująca sumę dodanych sekund
+        price_for_1grosz_1h = 60 * 60 / 200  # cena za 1 grosz pierwszej godziny
+        price_for_1grosz_2h = 60 * 60 / 400  # cena za 1 grosz drugiej godziny
+        price_for_1grosz_nh = 60 * 60 / 500  # cena za 1 grosz trzeciej godziny
+        hour_in_seconds = 3600  # godzina zapisana w sekundach
 
-        if amount == 1 and self.hours_bought < 1:
-            hours_paid += 0.5
-            amount -= 1
-            self.sum_of_money_used += 1
-            self.hours_bought += 0.5
-        if amount == 5 and self.hours_bought == 0:
-            hours_paid += 1.75
-            amount -= 5
-            self.sum_of_money_used += 5
-            self.hours_bought = 2
-        if amount >= 2 and self.hours_bought == 0:
-            hours_paid += 1
-            amount -= 2
-            self.sum_of_money_used += 2
-            self.hours_bought = 1
-        if amount >= 4 and 0.5 <= self.hours_bought <= 1:
-            hours_paid += 1
-            amount -= 4
-            self.sum_of_money_used += 4
-            self.hours_bought = 2
-        if amount >= 5 and self.hours_bought == 2:
-            hours_paid = hours_paid + math.floor((amount / 5))
-            self.hours_bought = 2
-            self.sum_of_money_used += (5 * math.floor((amount / 5)))
-            amount -= (5 * hours_paid)
+        if total_seconds < hour_in_seconds:  # jeśli suma sekund jest mniejsza od godziny
+            if amount < 2:
+                seconds = amount * 100 * Decimal(price_for_1grosz_1h)
+                total_seconds += seconds
+                amount -= amount
+            else:
+                total_seconds += 3600
+                amount -= 2
+        if total_seconds < hour_in_seconds * 2:  # jeśli suma sekund jest mniejsza od dwóch godzin
+            if amount < 4:
+                seconds = amount * 100 * Decimal(price_for_1grosz_2h)
+                total_seconds += seconds
+                amount -= amount
+            else:
+                total_seconds += 3600
+                amount -= 4
+        if total_seconds >= hour_in_seconds * 2:  # jeśli suma sekund jest większa lub równa dwóch godzin
+            if amount < 5:
+                seconds = amount * 100 * Decimal(price_for_1grosz_nh)
+                total_seconds += seconds
+                amount -= amount
+            else:
+                total_seconds += math.floor((amount / 5)) * 60 * 60
+                amount -= 5 * math.floor((amount / 5))
 
-        return hours_paid
+        temp_seconds = total_seconds
+        total_seconds -= self.previous_time
+        self.previous_time = temp_seconds
+        return total_seconds
 
     def departure_date(self):
         """ Metoda ustawiająca datę wyjazdu """
 
         hour_free = [0, 1, 2, 3, 4, 5, 6, 7, 20, 21, 22, 23]
         amount = self.moneyHolder.total_amount()  # suma przechowywanych pieniędzy
-        hours_paid = self.number_of_hours(amount) * 60 * 60  # liczba zapłaconych godzin zmieniona na sekundy
+        hours_paid = self.seconds_for_money(amount)  # liczba zapłaconych godzin zmieniona na sekundy
         if hours_paid > 0:
             if self.departure_time.hour in hour_free:
                 if hours_paid == 3600*1.75:
@@ -285,12 +280,12 @@ class ParkomatFunctions:
         self.interface.window.date_of_departure_label.config(text="")  # reset pola z datą wyjazdu
         self.global_date = datetime.now()  # reset czasu parkomatu do stanu początkowego
         self.departure_time = self.global_date  # ustawienie z powrotem czasu wyjazdy do stanu początkowego
-        self.hours_bought = 0  # reset liczby godzin zamówiona w parkomacie do stanu początkowego
-        self.sum_of_money_used = 0  # reset sumy użytych pieniędzy do opłacenia do stanu początkowego
         self.interface.window.number_of_money_entry.delete(0, "end")  # reset pola z liczbą monet
         self.interface.window.number_of_money_entry.insert(0, "1")  # wpisanie domyślnej wartości
         self.interface.window.hour_entry.delete(0, "end")  # reset entry z godziną
         self.interface.window.hour_entry.insert(0, "0")  # wpisanie domyślnej wartości
         self.interface.window.minute_entry.delete(0, "end")  # reset entry z minutą
         self.interface.window.minute_entry.insert(0, "0")  # wpisanie domyślnej wartości
+        self.previous_time = 0  # reset poprzednio dodanego czasu
+
 
