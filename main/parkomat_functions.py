@@ -236,14 +236,22 @@ class ParkomatFunctions:
         seconds_paid = self.seconds_for_money(amount)  # liczba zapłaconych sekund
         if seconds_paid > 0:
             if self.departure_time.hour in hour_free:  # jeśli aktualna godzina wyjazdu jest darmowa
-                if self.departure_time.hour > 19:  # jeśli aktualna godzina wyjazdu jest między 19-24
-                    self.departure_time = self.departure_time.replace(hour=8, minute=00) + timedelta(days=1, seconds=seconds_paid)
-                else:
+                if self.departure_time.hour > 19:  # jeśli aktualna godzina wyjazdu jest między 20-24
+                    if self.departure_time.weekday() == 5:  # jeśli jest sobota
+                        self.departure_time = self.departure_time.replace(hour=8, minute=00) + timedelta(days=2, seconds=seconds_paid)
+                    elif self.departure_time.weekday() == 6:  # jeśli jest niedziela
+                        self.departure_time = self.departure_time.replace(hour=8, minute=00) + timedelta(days=1, seconds=seconds_paid)
+                    else:  # jeśli jest inny dzień
+                        self.departure_time = self.departure_time.replace(hour=8, minute=00) + timedelta(days=1, seconds=seconds_paid)
+                else:  # jeśli aktualna godzina wyjazdu jest między 0-8
                     self.departure_time = self.departure_time.replace(hour=8, minute=00) + timedelta(seconds=seconds_paid)
+                # ustawienie czasu wyjazdu
                 self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M"))
-            elif self.departure_time.hour == 19 and seconds_paid == 6300:
+
+            elif self.departure_time.hour == 19 and seconds_paid == 6300:  # jeśli o 19 zapłacimy po raz pierwszy monetą 5zł
                 self.departure_time = self.departure_time.replace(hour=8, minute=45)
                 self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M"))
+
             else:  # jeśli aktualna godzina wyjazdu nie jest darmowa
                 self.departure_time = self.rules(self.departure_time, seconds_paid)
                 self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M"))
