@@ -15,7 +15,7 @@ class ParkomatFunctions:
 
     __global_date = datetime.now()  # zmienna przechowująca aktualnie ustawioną datę w parkomacie
     __departure_time = __global_date  # zmienna przechowująca czas wyjazdu
-    __previous_time = 0  # zmienna przechowująca poprzednio dodany czas w sekundach
+    __previous_time = 0  # zmienna przechowująca poprzednio zwrócony czas w sekundach dla wrzuconych pieniędzy dla metody seconds_for_money
 
     def __init__(self):
         self.__window = Tk()  # Toplevel widget reprezentujący główne okno programu
@@ -231,7 +231,7 @@ class ParkomatFunctions:
     def departure_date(self):
         """ Metoda ustawiająca datę wyjazdu """
 
-        hour_free = [0, 1, 2, 3, 4, 5, 6, 7, 20, 21, 22, 23]  # lista z darmowymi godzinami
+        hour_free = [x for x in range(0, 24) if x not in range(8, 20)]  # lista z darmowymi godzinami
         amount = self.moneyHolder.total_amount()  # suma przechowywanych pieniędzy
         seconds_paid = self.seconds_for_money(amount)  # liczba zapłaconych sekund
         if seconds_paid > 0:
@@ -243,6 +243,7 @@ class ParkomatFunctions:
                         self.departure_time = self.departure_time.replace(hour=8, minute=00) + timedelta(days=1, seconds=seconds_paid)
                     else:  # jeśli jest inny dzień
                         self.departure_time = self.departure_time.replace(hour=8, minute=00) + timedelta(days=1, seconds=seconds_paid)
+
                 else:  # jeśli aktualna godzina wyjazdu jest między 0-8
                     self.departure_time = self.departure_time.replace(hour=8, minute=00) + timedelta(seconds=seconds_paid)
                 # ustawienie czasu wyjazdu

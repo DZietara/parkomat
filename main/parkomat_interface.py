@@ -144,7 +144,7 @@ class ParkomatInterface:
         self.window.reset_button.grid(column=0, row=18, columnspan=2, pady=3)
 
         # pole pokazujące sumę wrzuconych monet
-        self.window.sum_label = Label(self.window, text="Suma monet: ", width=20, font="BOLD", pady=15)
+        self.window.sum_label = Label(self.window, text="Wrzucona kwota: ", width=20, font="BOLD", pady=15)
         self.window.sum_label.grid(column=0, row=20)
         self.window.sum_of_money_label = Label(self.window, text="0", width=20, font="BOLD")
         self.window.sum_of_money_label.grid(column=1, row=20)
