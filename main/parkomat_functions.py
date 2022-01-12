@@ -134,6 +134,8 @@ class ParkomatFunctions:
             m1 = int(self.interface.window.minute_entry.get())  # pobranie minuty z entry i przekonwertowanie na int
             self.global_date = self.global_date.replace(hour=h1, minute=m1)  # ustawienie nowego czasy dla parkomatu
             self.departure_time = self.global_date  # przypisanie aktualnej daty parkomatu do daty wyjazdu
+            self.moneyHolder.reset()  # reset przechowywacza gdy zmieniamy czas
+            self.previous_time = 0  # reset wcześniejszego czasu gdy zmieniamy czas
 
     def add_number_of_money(self, value):
         """ Metoda dodająca wybraną liczbę monet """
@@ -177,87 +179,73 @@ class ParkomatFunctions:
                             .format(self.interface.window.registration_number_entry.get(), self.interface.window.actual_date_label.cget("text"),
                                     self.interface.window.date_of_departure_label.cget("text")))
 
-    def rules(self, start, x):
+    def rules(self, start, seconds):
         """ Zasady strefy płatnego parkowania obowiązuje w godzinach od 8 do 20 od poniedziałku do piątku """
 
         rr = rrule(SECONDLY, byweekday=(MO, TU, WE, TH, FR), byhour=(8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19),
-                   dtstart=start, interval=x)
+                   dtstart=start, interval=seconds)
         return rr.after(start)
 
     def seconds_for_money(self, amount):
         """ Metoda zwracająca liczbę sekund dla wrzuconych pieniędzy """
 
         total_seconds = 0  # zmienna przechowująca sumę dodanych sekund
-        price_for_1grosz_1h = 60 * 60 / 200  # cena za 1 grosz pierwszej godziny
-        price_for_1grosz_2h = 60 * 60 / 400  # cena za 1 grosz drugiej godziny
-        price_for_1grosz_nh = 60 * 60 / 500  # cena za 1 grosz trzeciej godziny
-        hour_in_seconds = 3600  # godzina zapisana w sekundach
+        grosz_1h = 60 * 60 / 200  # sekunda za jednego grosza pierwszej godziny
+        grosz_2h = 60 * 60 / 400  # sekunda za jednego grosza drugiej godziny
+        grosz_xh = 60 * 60 / 500  # sekunda za jednego grosza lub większej godziny
 
-        if total_seconds < hour_in_seconds:  # jeśli suma sekund jest mniejsza od godziny
-            if amount < 2:
-                seconds = amount * 100 * Decimal(price_for_1grosz_1h)
-                total_seconds += seconds
-                amount -= amount
+        if total_seconds < 3600:  # jeśli suma sekund jest mniejsza od godziny zapisanej w sekundach
+            if amount >= 2:  # jeśli suma jest większa lub równa 2
+                total_seconds += 3600  # dodaj godzinę
+                amount -= 2  # odejmij od sumy koszt jednej godziny
             else:
-                total_seconds += 3600
-                amount -= 2
-        if total_seconds < hour_in_seconds * 2:  # jeśli suma sekund jest mniejsza od dwóch godzin
-            if amount < 4:
-                seconds = amount * 100 * Decimal(price_for_1grosz_2h)
-                total_seconds += seconds
-                amount -= amount
+                seconds = amount * 100 * Decimal(grosz_1h)  # obliczona liczba sekund
+                total_seconds += seconds  # dodanie obliczonych sekund do całościowej liczby sekund
+                amount = 0  # zerowanie sumy
+
+        if total_seconds < 7200:  # jeśli suma sekund jest mniejsza od dwóch godzin zapisanej w sekundach
+            if amount >= 4:  # jeśli suma jest większa lub równa 4
+                total_seconds += 3600  # dodaj godzinę
+                amount -= 4  # odejmij od sumy koszt jednej godziny
             else:
-                total_seconds += 3600
-                amount -= 4
-        if total_seconds >= hour_in_seconds * 2:  # jeśli suma sekund jest większa lub równa dwóch godzin
-            if amount < 5:
-                seconds = amount * 100 * Decimal(price_for_1grosz_nh)
-                total_seconds += seconds
-                amount -= amount
-            else:
-                total_seconds += math.floor((amount / 5)) * 60 * 60
-                amount -= 5 * math.floor((amount / 5))
+                seconds = amount * 100 * Decimal(grosz_2h)  # obliczona liczba sekund
+                total_seconds += seconds  # dodanie obliczonych sekund do całościowej liczby sekund
+                amount = 0  # zerowanie sumy
+
+        while amount > 0:  # wykonuj, dopóki suma wrzuconych pieniędzy jest większa od zera
+            if total_seconds >= 7200:  # jeśli suma sekund jest większa lub równa dwóch godzin zapisanej w sekundach
+                if amount >= 5:  # jeśli suma jest większa lub równa 5
+                    total_seconds += math.floor((amount / 5)) * 60 * 60  # dodanie całkowitej liczby godzin
+                    amount -= 5 * math.floor((amount / 5))  # odjęcia całkowitej liczby godzin od sumy
+                else:
+                    seconds = amount * 100 * Decimal(grosz_xh)  # obliczona liczba sekund
+                    total_seconds += seconds  # dodanie obliczonych sekund do całościowej liczby sekund
+                    amount = 0  # zerowanie sumy
 
         temp_seconds = total_seconds
-        total_seconds -= self.previous_time
-        self.previous_time = temp_seconds
-        return total_seconds
+        total_seconds -= self.previous_time  # od całkowitego czasu odjęcie wcześniejszego
+        self.previous_time = temp_seconds  # ustawienie nowego wcześniejszego czasu
+
+        return int(total_seconds)
 
     def departure_date(self):
         """ Metoda ustawiająca datę wyjazdu """
 
-        hour_free = [0, 1, 2, 3, 4, 5, 6, 7, 20, 21, 22, 23]
+        hour_free = [0, 1, 2, 3, 4, 5, 6, 7, 20, 21, 22, 23]  # lista z darmowymi godzinami
         amount = self.moneyHolder.total_amount()  # suma przechowywanych pieniędzy
-        hours_paid = self.seconds_for_money(amount)  # liczba zapłaconych godzin zmieniona na sekundy
-        if hours_paid > 0:
-            if self.departure_time.hour in hour_free:
-                if hours_paid == 3600*1.75:
-                    if self.departure_time.hour > 19:
-                        self.departure_time = self.departure_time.replace(hour=9, minute=45) + timedelta(days=1)
-                    else:
-                        self.departure_time = self.departure_time.replace(hour=9, minute=45)
-                    self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M"))
-                elif hours_paid == 3600:
-                    if self.departure_time.hour > 19:
-                        self.departure_time = self.departure_time.replace(hour=9, minute=0) + timedelta(days=1)
-                    else:
-                        self.departure_time = self.departure_time.replace(hour=9, minute=0)
-                    self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M"))
-                elif hours_paid == 1800:
-                    if self.departure_time.hour > 19:
-                        self.departure_time = self.departure_time.replace(hour=8, minute=30) + timedelta(days=1)
-                    else:
-                        self.departure_time = self.departure_time.replace(hour=8, minute=30)
-                    self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M"))
-                elif hours_paid >= 3600*1.75:
-                    if self.departure_time.hour > 19:
-                        self.departure_time = self.departure_time.replace(hour=8, minute=0) + timedelta(days=1)
-                    else:
-                        self.departure_time = self.departure_time.replace(hour=8, minute=0)
-                    self.departure_time = self.rules(self.departure_time, int(hours_paid))
-                    self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M"))
-            else:
-                self.departure_time = self.rules(self.departure_time, int(hours_paid))
+        seconds_paid = self.seconds_for_money(amount)  # liczba zapłaconych sekund
+        if seconds_paid > 0:
+            if self.departure_time.hour in hour_free:  # jeśli aktualna godzina wyjazdu jest darmowa
+                if self.departure_time.hour > 19:  # jeśli aktualna godzina wyjazdu jest między 19-24
+                    self.departure_time = self.departure_time.replace(hour=8, minute=00) + timedelta(days=1, seconds=seconds_paid)
+                else:
+                    self.departure_time = self.departure_time.replace(hour=8, minute=00) + timedelta(seconds=seconds_paid)
+                self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M"))
+            elif self.departure_time.hour == 19 and seconds_paid == 6300:
+                self.departure_time = self.departure_time.replace(hour=8, minute=45)
+                self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M"))
+            else:  # jeśli aktualna godzina wyjazdu nie jest darmowa
+                self.departure_time = self.rules(self.departure_time, seconds_paid)
                 self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M"))
 
     def confirm(self, event):
