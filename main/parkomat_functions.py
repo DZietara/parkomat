@@ -108,7 +108,7 @@ class ParkomatFunctions:
         self.interface.window.change_actual_date_button.bind("<Button-1>", lambda event: self.change_actual_time(event))
 
     def actual_date(self):
-        """ Metoda generująca aktualną datę parkomatu oraz daty wyjazdu"""
+        """ Metoda aktualizująca aktualną datę parkomatu oraz datę wyjazdu"""
 
         self.global_date = self.global_date + timedelta(seconds=1)  # dodanie sekundy do aktualnej daty parkomatu
         self.departure_time = self.departure_time + timedelta(seconds=1)  # dodanie sekundy do daty wyjazdu
@@ -262,7 +262,6 @@ class ParkomatFunctions:
 
         if self.input_validator() is not False:  # sprawdzenie walidacji numeru rejestracyjnego
             if self.moneyHolder.total_amount() > 0:  # wykonanie jeśli suma monet jest większa od 0
-                self.interface.window.sum_of_money_label.config(text=self.moneyHolder.total_amount())
                 self.confirmation_of_payment()  # wykonanie funkcji potwierdzającej płatność
                 self.reset(event)  # po potwierdzeniu rezerwacji reset parkomatu do stanu początkowego
             else:  # w przeciwnym wypadku wyświetl błąd
