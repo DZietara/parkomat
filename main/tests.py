@@ -122,7 +122,7 @@ class Tests(unittest.TestCase):
         """ Wciśnięcie "Zatwierdź" bez wrzucenia monet -- oczekiwana informacja o błędzie. """
         self.parkomat.interface.window.registration_number_entry.insert(0, "NR123")  # ustawienie nr rejestracyjnego
 
-        self.parkomat.confirm("<Button-1>")  # wciśnięcie "Zatwierdź" bez wrzucenia monet, oczekiwana informacja o błędzie
+        self.parkomat.confirm("<ButtonRelease-1>")  # wciśnięcie "Zatwierdź" bez wrzucenia monet, oczekiwana informacja o błędzie
 
         self.parkomat.reset()  # reset parkomatu
 
@@ -131,11 +131,11 @@ class Tests(unittest.TestCase):
         Wciśnięcie "Zatwierdź" po wpisaniu niepoprawnego numeru rejestracyjnego -- oczekiwana informacja o błędzie."""
 
         self.parkomat.add_number_of_money(Decimal("5"))  # wrzucamy 5zl
-        self.parkomat.confirm("<Button-1>")  # wciśnięcie "Zatwierdź" bez wpisania numeru rejestracyjnego, oczekiwana informacja o błędzie
+        self.parkomat.confirm("<ButtonRelease-1>")  # wciśnięcie "Zatwierdź" bez wpisania numeru rejestracyjnego, oczekiwana informacja o błędzie
 
         self.parkomat.interface.window.registration_number_entry.insert(0, "asd")  # niepoprawny numer rejestracyjny
 
-        self.parkomat.confirm("<Button-1>")  # wciśnięcie "Zatwierdź" po wpisaniu niepoprawnego numeru rejestracyjnego, oczekiwana informacja o błędzie
+        self.parkomat.confirm("<ButtonRelease-1>")  # wciśnięcie "Zatwierdź" po wpisaniu niepoprawnego numeru rejestracyjnego, oczekiwana informacja o błędzie
         self.parkomat.reset()  # reset parkomatu
 
 
