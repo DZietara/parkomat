@@ -1,12 +1,11 @@
-"""Wyjątki dla operacji związanych z pieniędzmi"""
-
 
 class IncorrectValueError(Exception):
-    def __init__(self):
-        super().__init__("Invalid value for money")
+    """ Wyjątek gdy wprowadzono nieprawidłową wartość """
+    pass
 
 
 class TooMuchCoinsError(Exception):
+    """ Wyjątek gdy do parkomatu próbuje się wrzucić monetę z nominałem ponad limit """
     def __init__(self, value):
         self.value = value
 
@@ -15,15 +14,24 @@ class TooMuchCoinsError(Exception):
 
 
 class CurrencyMismatchError(Exception):
+    """ Wyjątek gdy waluty nie są takie same """
     def __init__(self):
         super().__init__("Currencies must match")
 
 
 class InvalidOperandError(Exception):
+    """ Wyjątek gdy zła operacja dla konkretnego typu """
     def __init__(self):
         super().__init__("Invalid operand types for operation")
 
 
 class UnknownObjectError(Exception):
+    """ Wyjątek gdy jest zła operacja dla konkretnego typu """
     def __init__(self):
         super().__init__("Object must be Money")
+
+
+class IncorrectTime(Exception):
+    """ Wyjątek dla nieprawidłowego czasu """
+    def __init__(self):
+        super().__init__()
