@@ -38,7 +38,7 @@ class ParkomatInterface:
         self.window.icon = PhotoImage(file="icon.png")  # ikona
         self.window.iconphoto(True, self.window.icon)  # ustawienie ikony programu
         self.window.resizable(False, False)  # wyłączenie możliwości zmiany rozmiaru okna
-        self.window.window_height = 520  # wysokość okna
+        self.window.window_height = 500  # wysokość okna
         self.window.window_width = 410  # szerokość okna
         self.window.screen_width = self.window.winfo_screenwidth()  # szerokość ekranu
         self.window.screen_height = self.window.winfo_screenheight()  # wysokość ekranu
@@ -54,29 +54,29 @@ class ParkomatInterface:
     def money_buttons(self):
         """ Metoda tworząca przyciski z pieniędzmi """
 
-        self.window.button1 = Button(self.window, text=str(self.moneyHolder.available_money[0]) + " " + self.moneyHolder.currency, width=15)
+        self.window.button1 = Button(self.window, text=str(self.moneyHolder.available_values[0]) + " " + self.moneyHolder.currency, width=15)
         self.window.button1.grid(column=0, row=9)
-        self.window.button2 = Button(self.window, text=str(self.moneyHolder.available_money[1]) + " " + self.moneyHolder.currency, width=15)
+        self.window.button2 = Button(self.window, text=str(self.moneyHolder.available_values[1]) + " " + self.moneyHolder.currency, width=15)
         self.window.button2.grid(column=0, row=10)
-        self.window.button3 = Button(self.window, text=str(self.moneyHolder.available_money[2]) + " " + self.moneyHolder.currency, width=15)
+        self.window.button3 = Button(self.window, text=str(self.moneyHolder.available_values[2]) + " " + self.moneyHolder.currency, width=15)
         self.window.button3.grid(column=0, row=11)
-        self.window.button4 = Button(self.window, text=str(self.moneyHolder.available_money[3]) + " " + self.moneyHolder.currency, width=15)
+        self.window.button4 = Button(self.window, text=str(self.moneyHolder.available_values[3]) + " " + self.moneyHolder.currency, width=15)
         self.window.button4.grid(column=0, row=12)
-        self.window.button5 = Button(self.window, text=str(self.moneyHolder.available_money[4]) + " " + self.moneyHolder.currency, width=15)
+        self.window.button5 = Button(self.window, text=str(self.moneyHolder.available_values[4]) + " " + self.moneyHolder.currency, width=15)
         self.window.button5.grid(column=0, row=13)
-        self.window.button6 = Button(self.window, text=str(self.moneyHolder.available_money[5]) + " " + self.moneyHolder.currency, width=15)
+        self.window.button6 = Button(self.window, text=str(self.moneyHolder.available_values[5]) + " " + self.moneyHolder.currency, width=15)
         self.window.button6.grid(column=0, row=14)
-        self.window.button7 = Button(self.window, text=str(self.moneyHolder.available_money[6]) + " " + self.moneyHolder.currency, width=15)
+        self.window.button7 = Button(self.window, text=str(self.moneyHolder.available_values[6]) + " " + self.moneyHolder.currency, width=15)
         self.window.button7.grid(column=1, row=9)
-        self.window.button8 = Button(self.window, text=str(self.moneyHolder.available_money[7]) + " " + self.moneyHolder.currency, width=15)
+        self.window.button8 = Button(self.window, text=str(self.moneyHolder.available_values[7]) + " " + self.moneyHolder.currency, width=15)
         self.window.button8.grid(column=1, row=10)
-        self.window.button9 = Button(self.window, text=str(self.moneyHolder.available_money[8]) + " " + self.moneyHolder.currency, width=15)
+        self.window.button9 = Button(self.window, text=str(self.moneyHolder.available_values[8]) + " " + self.moneyHolder.currency, width=15)
         self.window.button9.grid(column=1, row=11)
-        self.window.button10 = Button(self.window, text=str(self.moneyHolder.available_money[9]) + " " + self.moneyHolder.currency, width=15)
+        self.window.button10 = Button(self.window, text=str(self.moneyHolder.available_values[9]) + " " + self.moneyHolder.currency, width=15)
         self.window.button10.grid(column=1, row=12)
-        self.window.button11 = Button(self.window, text=str(self.moneyHolder.available_money[10]) + " " + self.moneyHolder.currency, width=15)
+        self.window.button11 = Button(self.window, text=str(self.moneyHolder.available_values[10]) + " " + self.moneyHolder.currency, width=15)
         self.window.button11.grid(column=1, row=13)
-        self.window.button12 = Button(self.window, text=str(self.moneyHolder.available_money[11]) + " " + self.moneyHolder.currency, width=15)
+        self.window.button12 = Button(self.window, text=str(self.moneyHolder.available_values[11]) + " " + self.moneyHolder.currency, width=15)
         self.window.button12.grid(column=1, row=14)
 
     def change_time_setup(self):
@@ -125,7 +125,7 @@ class ParkomatInterface:
         self.window.date_of_departure_label.grid(column=1, row=6)
 
         # pole pozwalające zmienić liczbę wrzuconych wrzucanych pieniędzy
-        self.window.number_of_money_label = Label(self.window, text="Liczba wrzuconych monet: ", width=20)
+        self.window.number_of_money_label = Label(self.window, text="Liczba wrzucanych pieniędzy:", width=21)
         self.window.number_of_money_label.grid(column=0, row=7)
         self.window.number_of_money_entry = Entry(self.window, width=20)
         self.window.number_of_money_entry.grid(column=1, row=7)
@@ -139,14 +139,10 @@ class ParkomatInterface:
         self.window.confirm_button = Button(self.window, text="Zatwierdź", width=42, pady=3)
         self.window.confirm_button.grid(column=0, row=17, columnspan=2)
 
-        # przycisk Reset
-        self.window.reset_button = Button(self.window, text="Reset parkomatu", width=42, pady=3)
-        self.window.reset_button.grid(column=0, row=18, columnspan=2, pady=3)
-
         # pole pokazujące sumę wrzuconych monet
         self.window.sum_label = Label(self.window, text="Wrzucona kwota: ", width=20, font="BOLD", pady=15)
         self.window.sum_label.grid(column=0, row=20)
-        self.window.sum_of_money_label = Label(self.window, text="0", width=20, font="BOLD")
+        self.window.sum_of_money_label = Label(self.window, text="0.00", width=20, font="BOLD")
         self.window.sum_of_money_label.grid(column=1, row=20)
 
         # metoda tworząca pola i przyciski pozwalające zmienić czas
