@@ -28,7 +28,7 @@ class Tests(unittest.TestCase):
         global_date = self.parkomat.global_date.strftime("%H:%M")
         self.assertEqual("12:34", global_date)  # oczekiwana ustawiona godzina na 12:34
 
-        self.parkomat.reset("<Button-1>")  # reset parkomatu
+        self.parkomat.reset()  # reset parkomatu
 
     def test2(self):
         """ Wrzucić 2zł, oczekiwany termin wyjazdu godzinę po aktualnym czasie. Dorzuć 4zł, oczekiwany termin wyjazdu dwie godziny po aktualnym czasie.
@@ -53,7 +53,7 @@ class Tests(unittest.TestCase):
         departure_date = self.parkomat.departure_time.strftime("%d-%m-%Y %H:%M")
         self.assertEqual("17-01-2022 12:10", departure_date)  # oczekiwany termin wyjazdu cztery godziny po aktualnym czasie
 
-        self.parkomat.reset("<Button-1>")  # reset parkomatu
+        self.parkomat.reset()  # reset parkomatu
 
     def test3(self):
         """ Wrzucić tyle pieniędzy, aby termin wyjazdu przeszedł na kolejny dzień,
@@ -67,7 +67,7 @@ class Tests(unittest.TestCase):
         departure_date = self.parkomat.departure_time.strftime("%d-%m-%Y %H:%M")
 
         self.assertEqual("18-01-2022 08:10", departure_date)  # oczekiwany termin wyjazdu następny dzień 08:10
-        self.parkomat.reset("<Button-1>")  # reset parkomatu
+        self.parkomat.reset()  # reset parkomatu
 
     def test4(self):
         """ Wrzucić tyle pieniędzy, aby termin wyjazdu przeszedł na kolejny tydzień, zgodnie z zasadami -
@@ -81,7 +81,7 @@ class Tests(unittest.TestCase):
         departure_date = self.parkomat.departure_time.strftime("%d-%m-%Y %H:%M")
 
         self.assertEqual("17-01-2022 08:10", departure_date)  # oczekiwany termin wyjazdu następny możliwy dzień tzn. poniedziałek 08:10
-        self.parkomat.reset("<Button-1>")  # reset parkomatu
+        self.parkomat.reset()  # reset parkomatu
 
     def test5(self):
         """ Wrzucić 1zł, oczekiwany termin wyjazdu pół godziny po aktualnym czasie """
@@ -90,9 +90,8 @@ class Tests(unittest.TestCase):
         self.parkomat.add_number_of_money(Decimal("1"))  # dorzucamy monetę 1zł
         departure_date = self.parkomat.departure_time.strftime("%d-%m-%Y %H:%M")
 
-        self.assertEqual("17-01-2022 08:40",
-                         departure_date)  # oczekiwany termin wyjazdu pół godziny po aktualnym czasie
-        self.parkomat.reset("<Button-1>")  # reset parkomatu
+        self.assertEqual("17-01-2022 08:40", departure_date)  # oczekiwany termin wyjazdu pół godziny po aktualnym czasie
+        self.parkomat.reset()  # reset parkomatu
 
     def test6(self):
         """ Wrzucić 200 monet 1gr, oczekiwany termin wyjazdu godzinę po aktualnym czasie. """
@@ -106,7 +105,7 @@ class Tests(unittest.TestCase):
 
         departure_date = self.parkomat.departure_time.strftime("%d-%m-%Y %H:%M")
         self.assertEqual("17-01-2022 09:10", departure_date)
-        self.parkomat.reset("<Button-1>")  # reset parkomatu
+        self.parkomat.reset()  # reset parkomatu
 
     def test7(self):
         """ Wrzucić 201 monet 1gr, oczekiwana informacja o przepełnieniu parkomatu. """
@@ -117,7 +116,7 @@ class Tests(unittest.TestCase):
         self.parkomat.interface.window.number_of_money_entry.insert(0, "201")
         self.parkomat.add_number_of_money(Decimal("0.01"))  # oczekiwana informacja o przepełnieniu parkomatu
 
-        self.parkomat.reset("<Button-1>")  # reset parkomatu
+        self.parkomat.reset()  # reset parkomatu
 
     def test8(self):
         """ Wciśnięcie "Zatwierdź" bez wrzucenia monet -- oczekiwana informacja o błędzie. """
@@ -125,7 +124,7 @@ class Tests(unittest.TestCase):
 
         self.parkomat.confirm("<Button-1>")  # wciśnięcie "Zatwierdź" bez wrzucenia monet, oczekiwana informacja o błędzie
 
-        self.parkomat.reset("<Button-1>")  # reset parkomatu
+        self.parkomat.reset()  # reset parkomatu
 
     def test9(self):
         """Wciśnięcie "Zatwierdź" bez wpisania numeru rejestracyjnego -- oczekiwana informacja o błędzie.
@@ -137,7 +136,7 @@ class Tests(unittest.TestCase):
         self.parkomat.interface.window.registration_number_entry.insert(0, "asd")  # niepoprawny numer rejestracyjny
 
         self.parkomat.confirm("<Button-1>")  # wciśnięcie "Zatwierdź" po wpisaniu niepoprawnego numeru rejestracyjnego, oczekiwana informacja o błędzie
-        self.parkomat.reset("<Button-1>")  # reset parkomatu
+        self.parkomat.reset()  # reset parkomatu
 
 
 if __name__ == '__main__':
