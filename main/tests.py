@@ -16,14 +16,14 @@ class Tests(unittest.TestCase):
         self.parkomat.interface.window.hour_entry.insert(0, "25")  # wpisanie niepoprawnej wartości
         self.parkomat.interface.window.minute_entry.delete(0, "end")  # reset entry z minutą
         self.parkomat.interface.window.minute_entry.insert(0, "61")  # wpisanie niepoprawnej wartości
-        self.parkomat.change_actual_time("<Button-1>")  # oczekiwany komunikat o błędzie
+        self.parkomat.change_actual_time("<ButtonRelease-1>")  # oczekiwany komunikat o błędzie
 
         # ustawiamy godzinę 12:34
         self.parkomat.interface.window.hour_entry.delete(0, "end")  # reset entry z godziną
         self.parkomat.interface.window.hour_entry.insert(0, "12")  # wpisanie poprawnej wartości
         self.parkomat.interface.window.minute_entry.delete(0, "end")  # reset entry z minutą
         self.parkomat.interface.window.minute_entry.insert(0, "34")  # wpisanie poprawnej wartości
-        self.parkomat.change_actual_time("<Button-1>")  # przycisk ustawiający godzinę
+        self.parkomat.change_actual_time("<ButtonRelease-1>")  # przycisk ustawiający godzinę
 
         global_date = self.parkomat.global_date.strftime("%H:%M")
         self.assertEqual("12:34", global_date)  # oczekiwana ustawiona godzina na 12:34
