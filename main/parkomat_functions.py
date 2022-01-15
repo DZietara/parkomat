@@ -91,21 +91,21 @@ class ParkomatFunctions:
     def buttons_onclick(self):
         """ Metoda obsługująca wydarzenie, gdy przycisk zostanie wciśnięty """
 
-        self.interface.window.button1.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[0]))
-        self.interface.window.button2.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[1]))
-        self.interface.window.button3.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[2]))
-        self.interface.window.button4.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[3]))
-        self.interface.window.button5.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[4]))
-        self.interface.window.button6.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[5]))
-        self.interface.window.button7.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[6]))
-        self.interface.window.button8.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[7]))
-        self.interface.window.button9.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[8]))
-        self.interface.window.button10.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[9]))
-        self.interface.window.button11.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[10]))
-        self.interface.window.button12.bind("<Button-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[11]))
-        self.interface.window.confirm_button.bind("<Button-1>", lambda event: self.confirm(event))
-        self.interface.window.reset_button.bind("<Button-1>", lambda event: self.reset(event))
-        self.interface.window.change_actual_date_button.bind("<Button-1>", lambda event: self.change_actual_time(event))
+        self.interface.window.button1.bind("<ButtonRelease-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[0]))
+        self.interface.window.button2.bind("<ButtonRelease-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[1]))
+        self.interface.window.button3.bind("<ButtonRelease-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[2]))
+        self.interface.window.button4.bind("<ButtonRelease-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[3]))
+        self.interface.window.button5.bind("<ButtonRelease-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[4]))
+        self.interface.window.button6.bind("<ButtonRelease-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[5]))
+        self.interface.window.button7.bind("<ButtonRelease-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[6]))
+        self.interface.window.button8.bind("<ButtonRelease-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[7]))
+        self.interface.window.button9.bind("<ButtonRelease-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[8]))
+        self.interface.window.button10.bind("<ButtonRelease-1>>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[9]))
+        self.interface.window.button11.bind("<ButtonRelease-1>>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[10]))
+        self.interface.window.button12.bind("<ButtonRelease-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_money[11]))
+        self.interface.window.confirm_button.bind("<ButtonRelease-1>", lambda event: self.confirm(event))
+        self.interface.window.reset_button.bind("<ButtonRelease-1>", lambda event: self.reset(event))
+        self.interface.window.change_actual_date_button.bind("<ButtonRelease-1>", lambda event: self.change_actual_time(event))
 
     def actual_date(self):
         """ Metoda aktualizująca aktualną datę parkomatu oraz datę wyjazdu"""
