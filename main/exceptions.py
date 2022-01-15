@@ -1,7 +1,8 @@
 
 class IncorrectValueError(Exception):
     """ Wyjątek gdy wprowadzono nieprawidłową wartość """
-    pass
+    def __init__(self):
+        super().__init__()
 
 
 class TooMuchCoinsError(Exception):

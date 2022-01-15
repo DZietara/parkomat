@@ -172,7 +172,7 @@ class ParkomatFunctions:
                         self.moneyHolder.add_money(money.Bill(value))  # dodanie banknotu do przechowywacza
                         self.inserted_money_by_user += value  # dodanie wartości banknotu do aktualnie wrzuconych przez użytkownika
         except IncorrectValueError:  # przechwycenie wyjątku dla niepoprawnie wpisanej wartości
-            messagebox.showerror("Error", "Wpisz poprawną liczbę pieniędzy które chcesz wrzucić.")
+            messagebox.showerror("Error", "Wpisz poprawną liczbę pieniędzy którą chcesz wrzucić.")
         except TooMuchCoinsError as err:  # przechwycenie wyjątku, jeśli przekroczono limit nominałów
             messagebox.showerror("Error", str(err))
         finally:  # aktualizacja wrzuconej kwoty oraz daty wyjazdu
