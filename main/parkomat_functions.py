@@ -114,8 +114,8 @@ class ParkomatFunctions:
         self.interface.window.button10.bind("<ButtonRelease-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_values[9]))
         self.interface.window.button11.bind("<ButtonRelease-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_values[10]))
         self.interface.window.button12.bind("<ButtonRelease-1>", lambda event: self.add_number_of_money(self.moneyHolder.available_values[11]))
-        self.interface.window.confirm_button.bind("<ButtonRelease-1>", lambda event: self.confirm(event))
-        self.interface.window.change_actual_date_button.bind("<ButtonRelease-1>", lambda event: self.change_actual_time(event))
+        self.bind_button_confirm(lambda event: self.button_confirm(event))
+        self.bind_change_actual_time(lambda event: self.button_change_actual_time(event))
 
     def actual_date(self):
         """ Metoda aktualizująca aktualną datę parkomatu oraz datę wyjazdu"""
@@ -131,22 +131,41 @@ class ParkomatFunctions:
         # powtarzanie funkcji actual_date() co sekundę
         self.interface.window.actual_date_label.after(1000, self.actual_date)
 
-    def change_actual_time(self, event):
+    def button_confirm(self, event):
+        """ Funkcja odpowiadająca na naciśnięcie przycisku 'Zatwierdź' """
+        try:
+            self.confirm()
+        except Exception as err:
+            messagebox.showerror("Błąd", str(err))
+
+    def button_change_actual_time(self, event):
+        """ Funkcja odpowiadająca na naciśnięcie przycisku zmieniającego godzinę """
+        try:
+            self.change_actual_time()
+        except Exception as err:
+            messagebox.showerror("Błąd", str(err))
+
+    def bind_button_confirm(self, f):
+        """ Funkcja bindująca przycisk 'Zatwierdź' """
+        self.interface.window.confirm_button.bind("<ButtonRelease-1>", f)
+
+    def bind_change_actual_time(self, f):
+        """ Funkcja bindująca przycisk 'Przestaw' """
+        self.interface.window.change_actual_date_button.bind("<ButtonRelease-1>", f)
+
+    def change_actual_time(self):
         """ Metoda ustawiająca godzinę wprowadzoną przez użytkownika """
 
         #  sprawdzenie, czy wpisano poprawnie czas
         if self.inserted_money_by_user != Decimal("0.00"):
             messagebox.showerror("Error", "Nie można zmienić czasu, gdy wrzucono już pieniądze.")
         else:
-            try:
-                if self.interface.window.hour_entry.get().isdigit() is False or self.interface.window.minute_entry.get().isdigit() is False or int(
-                        self.interface.window.hour_entry.get()) < 0 or int(
-                    self.interface.window.hour_entry.get()) > 23 or int(
-                    self.interface.window.minute_entry.get()) < 0 or int(
-                    self.interface.window.minute_entry.get()) > 59:
-                    raise IncorrectTime
-            except IncorrectTime:  # złapanie wyjątku dla niepoprawnego czasu
-                messagebox.showerror("Error", "Wpisano niepoprawny czas.")
+            if self.interface.window.hour_entry.get().isdigit() is False or self.interface.window.minute_entry.get().isdigit() is False or int(
+                    self.interface.window.hour_entry.get()) < 0 or int(
+                self.interface.window.hour_entry.get()) > 23 or int(
+                self.interface.window.minute_entry.get()) < 0 or int(
+                self.interface.window.minute_entry.get()) > 59:
+                raise IncorrectTime("Wpisano niepoprawny czas.")
             else:
                 h1 = int(self.interface.window.hour_entry.get())  # pobranie godziny z entry i przekonwertowanie na int
                 m1 = int(self.interface.window.minute_entry.get())  # pobranie minuty z entry i przekonwertowanie na int
@@ -185,11 +204,9 @@ class ParkomatFunctions:
         # porównanie numeru do wyrażenia regularnego
         pattern = re.match("^[A-Z0-9]+$", self.interface.window.registration_number_entry.get())
         if self.interface.window.registration_number_entry.get() == "":  # błąd jeśli nie wpisano numeru rejestracyjnego
-            messagebox.showerror("Error", "Wpisz numer rejestracyjny.")
-            return False
+            raise RegistrationNumberError("Wpisz numer rejestracyjny.")
         elif bool(pattern) is False:  # błąd, jeśli numer nie pasuje do wyrażenia regularnego
-            messagebox.showerror("Error", "Numer rejestracyjny może składać się tylko z wielkich liter od A do Z i cyfr")
-            return False
+            raise RegistrationNumberError("Numer rejestracyjny może składać się tylko z wielkich liter od A do Z i cyfr")
 
     def confirmation_of_payment(self):
         """ Metoda wyświetlająca okno z potwierdzeniem opłacenia parkingu """
@@ -272,15 +289,15 @@ class ParkomatFunctions:
             self.departure_time = self.rules(self.departure_time, seconds_paid)
             self.interface.window.date_of_departure_label.config(text=self.departure_time.strftime("%Y-%m-%d %H:%M"))
 
-    def confirm(self, event):
+    def confirm(self):
         """ Funkcja włączająca się przy kliknięciu przycisku 'Zatwierdź' """
 
-        if self.input_validator() is not False:  # sprawdzenie walidacji numeru rejestracyjnego
-            if self.inserted_money_by_user > 0:  # wykonanie, jeśli suma monet jest większa od 0
-                self.confirmation_of_payment()  # wykonanie funkcji potwierdzającej płatność
-                self.reset()  # po potwierdzeniu rezerwacji reset parkomatu do stanu początkowego
-            else:  # w przeciwnym wypadku wyświetl błąd
-                messagebox.showerror("Error", "Nie wrzucono monet.")
+        self.input_validator()  # sprawdzenie walidacji numeru rejestracyjnego
+        if self.inserted_money_by_user > 0:  # wykonanie, jeśli suma monet jest większa od 0
+            self.confirmation_of_payment()  # wykonanie funkcji potwierdzającej płatność
+            self.reset()  # po potwierdzeniu rezerwacji reset parkomatu do stanu początkowego
+        else:  # w przeciwnym wypadku wyświetl błąd
+            raise NotInsertedMoney("Nie wrzucono pieniędzy.")
 
     def reset(self):
         """ Funkcja resetująca parkomat do stanu początkowego """
