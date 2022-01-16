@@ -113,8 +113,10 @@ class Tests(unittest.TestCase):
         self.parkomat.interface.window.registration_number_entry.insert(0, "NR123")  # ustawienie nr rejestracyjnego
         self.parkomat.interface.window.number_of_money_entry.delete(0, "end")
 
+        self.parkomat.moneyHolder.reset()
         self.parkomat.interface.window.number_of_money_entry.insert(0, "201")
-        self.parkomat.add_number_of_money(Decimal("0.01"))  # oczekiwana informacja o przepełnieniu parkomatu
+        self.parkomat.add_number_of_money(Decimal("0.01"))
+        # sprawdzenie czy oczekiwana wrzucona wartość jest równa wrzuconej
         self.assertEqual(Decimal("2.00"), self.parkomat.moneyHolder.total_amount())
 
         self.parkomat.reset()  # reset parkomatu
