@@ -58,7 +58,7 @@ class Coin(Money):
         if round(Decimal(value), 2) in self.available_values:  # sprawdzenie czy jest możliwe stworzenie monety o podanym nominale
             super().__init__(value, currency)  # wywołanie konstruktora z klasy nadrzędnej
         else:
-            raise IncorrectValueError("Invalid value for money")  # error jeśli podany nominał nie znajduje się na liście
+            raise IncorrectValueError()  # error jeśli podany nominał nie znajduje się na liście
 
     def __repr__(self):
         return 'Coin({}, "{}")'.format(self.value, self.currency)
@@ -80,7 +80,7 @@ class Bill(Money):
         if round(Decimal(value),2) in self.available_values:  # sprawdzenie czy jest możliwe stworzenie bankontu o podanym nominale
             super().__init__(value, currency)  # wywołanie konstruktora z klasy nadrzędnej
         else:
-            raise IncorrectValueError("Invalid value for money")  # error jeśli podany nominał nie znajduje się na liście
+            raise IncorrectValueError()  # error jeśli podany nominał nie znajduje się na liście
 
     def __repr__(self):
         return 'Bill({}, "{}")'.format(self.value, self.currency)

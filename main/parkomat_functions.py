@@ -154,7 +154,7 @@ class ParkomatFunctions:
                 self.departure_time = self.global_date  # przypisanie aktualnej daty parkomatu do daty wyjazdu
                 self.previous_time = 0  # reset wcześniejszego czasu, gdy zmieniamy czas
 
-    def add_number_of_money(self, value):
+    def add_number_of_money(self, value: Decimal):
         """ Metoda dodająca wybraną liczbę monet """
 
         number_of_money = self.interface.window.number_of_money_entry.get()  # pobranie wprowadzonej liczby monet
@@ -207,7 +207,7 @@ class ParkomatFunctions:
                    dtstart=departure_date, interval=seconds)
         return rr.after(departure_date)
 
-    def seconds_for_money(self, amount):
+    def seconds_for_money(self, amount: Decimal):
         """ Metoda zwracająca liczbę sekund dla wrzuconych pieniędzy """
 
         total_seconds = 0  # zmienna przechowująca sumę dodanych sekund

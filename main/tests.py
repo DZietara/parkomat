@@ -40,7 +40,7 @@ class Tests(unittest.TestCase):
         departure_date = self.parkomat.departure_time.strftime("%d-%m-%Y %H:%M")
         self.assertEqual("17-01-2022 09:10", departure_date)  # oczekiwany termin wyjazdu godzinę po aktualnym czasie
 
-        self.parkomat.add_number_of_money(Decimal("2"))  # wrzucamy 2 razy po 2zł
+        self.parkomat.add_number_of_money(Decimal("2"))  # wrzucamy 4zł
         self.parkomat.add_number_of_money(Decimal("2"))
         departure_date = self.parkomat.departure_time.strftime("%d-%m-%Y %H:%M")
         self.assertEqual("17-01-2022 10:10", departure_date)  # oczekiwany termin wyjazdu dwie godziny po aktualnym czasie

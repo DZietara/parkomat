@@ -2,7 +2,7 @@
 class IncorrectValueError(Exception):
     """ Wyjątek gdy wprowadzono nieprawidłową wartość """
     def __init__(self):
-        super().__init__()
+        super().__init__("Invalid value for money")
 
 
 class TooMuchCoinsError(Exception):
