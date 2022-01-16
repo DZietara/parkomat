@@ -2,6 +2,7 @@ import unittest
 from parkomat_functions import ParkomatFunctions
 from decimal import Decimal
 from datetime import *
+from exceptions import *
 
 
 class Tests(unittest.TestCase):
@@ -11,24 +12,24 @@ class Tests(unittest.TestCase):
 
     def test1(self):
         """ Ustaw niepoprawną godzinę. Oczekiwany komunikat o błędzie. Ustawić godzinę na 12:34. """
-        # ustawiamy niepoprawną godzinę
-        self.parkomat.interface.window.hour_entry.delete(0, "end")  # reset entry z godziną
-        self.parkomat.interface.window.hour_entry.insert(0, "25")  # wpisanie niepoprawnej wartości
-        self.parkomat.interface.window.minute_entry.delete(0, "end")  # reset entry z minutą
-        self.parkomat.interface.window.minute_entry.insert(0, "61")  # wpisanie niepoprawnej wartości
-        self.parkomat.change_actual_time("<ButtonRelease-1>")  # oczekiwany komunikat o błędzie
 
-        # ustawiamy godzinę 12:34
+        # sprawdzamy, czy wystąpił wyjątek dla nieprawidłowego czasu podanego przez użytkownika
+        with self.assertRaises(IncorrectTime):
+            self.parkomat.interface.window.hour_entry.delete(0, "end")  # reset entry z godziną
+            self.parkomat.interface.window.hour_entry.insert(0, "25")  # wpisanie niepoprawnej wartości
+            self.parkomat.interface.window.minute_entry.delete(0, "end")  # reset entry z minutą
+            self.parkomat.interface.window.minute_entry.insert(0, "15")  # wpisanie poprawnej wartości
+            self.parkomat.change_actual_time()
+
+        # ustawiamy poprawną godzinę 12:34
         self.parkomat.interface.window.hour_entry.delete(0, "end")  # reset entry z godziną
         self.parkomat.interface.window.hour_entry.insert(0, "12")  # wpisanie poprawnej wartości
         self.parkomat.interface.window.minute_entry.delete(0, "end")  # reset entry z minutą
         self.parkomat.interface.window.minute_entry.insert(0, "34")  # wpisanie poprawnej wartości
-        self.parkomat.change_actual_time("<ButtonRelease-1>")  # przycisk ustawiający godzinę
+        self.parkomat.change_actual_time()  # przycisk ustawiający godzinę
 
         global_date = self.parkomat.global_date.strftime("%H:%M")
         self.assertEqual("12:34", global_date)  # oczekiwana ustawiona godzina na 12:34
-
-        self.parkomat.reset()  # reset parkomatu
 
     def test2(self):
         """ Wrzucić 2zł, oczekiwany termin wyjazdu godzinę po aktualnym czasie. Dorzuć 4zł, oczekiwany termin wyjazdu dwie godziny po aktualnym czasie.
@@ -112,17 +113,21 @@ class Tests(unittest.TestCase):
         self.parkomat.interface.window.registration_number_entry.insert(0, "NR123")  # ustawienie nr rejestracyjnego
         self.parkomat.interface.window.number_of_money_entry.delete(0, "end")
 
-        # wrzucamy 201 monet 1gr
-        self.parkomat.interface.window.number_of_money_entry.insert(0, "201")
-        self.parkomat.add_number_of_money(Decimal("0.01"))  # oczekiwana informacja o przepełnieniu parkomatu
+        with self.assertRaises(TooMuchCoinsError):
+            self.parkomat.interface.window.number_of_money_entry.insert(0, "201")
+            self.parkomat.add_number_of_money(Decimal("0.01"))  # oczekiwana informacja o przepełnieniu parkomatu
+            self.assertEqual("200")
+            self.parkomat.confirm()
 
         self.parkomat.reset()  # reset parkomatu
 
     def test8(self):
         """ Wciśnięcie "Zatwierdź" bez wrzucenia monet -- oczekiwana informacja o błędzie. """
-        self.parkomat.interface.window.registration_number_entry.insert(0, "NR123")  # ustawienie nr rejestracyjnego
 
-        self.parkomat.confirm("<ButtonRelease-1>")  # wciśnięcie "Zatwierdź" bez wrzucenia monet, oczekiwana informacja o błędzie
+        # sprawdzamy, czy wystąpił wyjątek, gdy użytkownik nie wrzucił pieniędzy i wcisnął przycisk 'Zatwierdź'
+        with self.assertRaises(NotInsertedMoney):
+            self.parkomat.interface.window.registration_number_entry.insert(0, "NR123")  # ustawienie nr rejestracyjnego
+            self.parkomat.confirm()  # wciśnięcie "Zatwierdź" bez wrzucenia monet, oczekiwana informacja o błędzie
 
         self.parkomat.reset()  # reset parkomatu
 
@@ -130,12 +135,17 @@ class Tests(unittest.TestCase):
         """Wciśnięcie "Zatwierdź" bez wpisania numeru rejestracyjnego -- oczekiwana informacja o błędzie.
         Wciśnięcie "Zatwierdź" po wpisaniu niepoprawnego numeru rejestracyjnego -- oczekiwana informacja o błędzie."""
 
-        self.parkomat.add_number_of_money(Decimal("5"))  # wrzucamy 5zl
-        self.parkomat.confirm("<ButtonRelease-1>")  # wciśnięcie "Zatwierdź" bez wpisania numeru rejestracyjnego, oczekiwana informacja o błędzie
+        # wciśnięcie "Zatwierdź" bez wpisania numeru rejestracyjnego, oczekiwana informacja o błędzie
+        with self.assertRaises(RegistrationNumberError):
+            self.parkomat.add_number_of_money(Decimal("5"))  # wrzucamy 5zl
+            self.parkomat.confirm()
 
-        self.parkomat.interface.window.registration_number_entry.insert(0, "asd")  # niepoprawny numer rejestracyjny
+        # wciśnięcie "Zatwierdź" po wpisaniu niepoprawnego numeru rejestracyjnego -- oczekiwana informacja o błędzie
+        with self.assertRaises(RegistrationNumberError):
+            self.parkomat.add_number_of_money(Decimal("5"))  # wrzucamy 5zl
+            self.parkomat.interface.window.registration_number_entry.insert(0, "asd")   # niepoprawny numer rejestracyjny
+            self.parkomat.confirm()
 
-        self.parkomat.confirm("<ButtonRelease-1>")  # wciśnięcie "Zatwierdź" po wpisaniu niepoprawnego numeru rejestracyjnego, oczekiwana informacja o błędzie
         self.parkomat.reset()  # reset parkomatu
 
 
